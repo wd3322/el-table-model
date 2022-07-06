@@ -433,8 +433,11 @@ export default {
         }
       }
       .editable-text {
-        padding: 2.5px 10px;
-        min-width: 50px;
+        display: inline-block;
+        padding: 0 10px;
+        min-width: 75px;
+        min-height: 23px;
+        vertical-align: middle;
         cursor: pointer;
         &:hover {
           background-color: #fff;
