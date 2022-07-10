@@ -1,14 +1,22 @@
 # vue element table to json
-![el-table-model](https://github.com/wd3322/sampleResources/blob/master/el-table-model/demo.png)
+
+**Git地址**
+
+[Github](https://github.com/wd3322/el-table-model)
+
+[Gitee](https://gitee.com/wd3322/el-table-model)
+
+
+![el-table-model](https://wd3322.github.io/to-vue3/img/el-table-model/table-demo.png)
 
 ## 渲染
-![base](https://github.com/wd3322/sampleResources/blob/master/el-table-model/base.gif)
+![base](https://wd3322.github.io/to-vue3/img/el-table-model/table-base.gif)
 
 ## 可编辑
-![editable](https://github.com/wd3322/sampleResources/blob/master/el-table-model/editable.gif)
+![editable](https://wd3322.github.io/to-vue3/img/el-table-model/table-editable.gif)
 
 ## 可拖动
-![draggable](https://github.com/wd3322/sampleResources/blob/master/el-table-model/draggable.gif)
+![draggable](https://wd3322.github.io/to-vue3/img/el-table-model/table-draggable.gif)
 
 ## 下载
 
