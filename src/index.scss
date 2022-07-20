@@ -1,7 +1,7 @@
 .table-model-wrap {
   width: 100%;
   .table-model-content {
-    /deep/ .cell {
+    .cell {
       .el-form-item {
         margin-bottom: 0;
         line-height: normal;
@@ -52,7 +52,7 @@
       }
     }
     .drag-sort {
-      /deep/ .el-table__body-wrapper td {
+      .el-table__body-wrapper td {
         cursor: move;
         > * {
           cursor: default;

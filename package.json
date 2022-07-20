@@ -1,6 +1,6 @@
 {
   "name": "el-table-model",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "vue element table to json",
   "main": "lib/index.js",
   "repository": {
