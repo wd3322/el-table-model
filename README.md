@@ -31,6 +31,8 @@ npm install el-table-model
 import Vue from 'vue'
 import ElementUI from 'element-ui'
 import ElTableModel from 'el-table-model'
+import 'element-ui/lib/theme-chalk/index.css'
+import 'el-table-model/lib/index.css'
 
 Vue.use(ElementUI)
 Vue.use(ElTableModel)

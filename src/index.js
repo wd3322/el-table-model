@@ -1,11 +1,12 @@
+import ElTableModel from './ElTableModel.vue'
 import defaultAttrs from './attrs'
-import app from './app.vue'
+import './index.scss'
 
 const Loading = {
   install: function(Vue, attrs = {}) {
     const mixin = defaultAttrs.get(attrs)
     Vue.mixin(mixin)
-    Vue.component('el-table-model', app)
+    Vue.component('el-table-model', ElTableModel)
   }
 }
 
