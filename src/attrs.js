@@ -12,17 +12,15 @@ const attrs = {
       border: true,
       highlightCurrentRow: true
     },
-    index: {
-      width: 60
-    },
-    expand: {},
-    slot: {},
-    editable: {},
-    data: {}
-    // or
-    // data(column) {
-    //   return {}
-    // }
+    tableColumn(column) {
+      if (column.type === 'index') {
+        return {
+          width: 60
+        }
+      } else {
+        return {}
+      }
+    }
   }
 }
 
