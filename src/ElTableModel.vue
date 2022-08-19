@@ -232,7 +232,7 @@ export default {
           ...this.defaultAttrs.component.table,
           ...this.$attrs
         }
-      } else if (type === 'table-column' && ['index', 'slot', 'editable', 'expand'].includes(column.type)) {
+      } else if (type === 'table-column' && column.type) {
         result = {
           ...this.defaultAttrs.component[column.type],
           ...column
