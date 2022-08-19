@@ -17,7 +17,12 @@ const attrs = {
     },
     expand: {},
     slot: {},
-    editable: {}
+    editable: {},
+    data: {}
+    // or
+    // data(column) {
+    //   return {}
+    // }
   }
 }
 

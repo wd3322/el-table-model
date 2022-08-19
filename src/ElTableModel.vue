@@ -232,7 +232,7 @@ export default {
           ...this.defaultAttrs.component.table,
           ...this.$attrs
         }
-      } else if (type === 'table-column') {
+      } else if (type === 'table-column' && ['index', 'slot', 'editable', 'expand'].includes(column.type)) {
         result = {
           ...this.defaultAttrs.component[column.type],
           ...column
@@ -244,6 +244,16 @@ export default {
         } else if (column.type === 'editable') {
           delete result.type
           delete result.form
+        }
+        delete result.hidden
+      } else if (type === 'table-column' && column.prop) {
+        result = {
+          ...(
+            typeof this.defaultAttrs.component.data === 'function'
+            ? this.defaultAttrs.component.data(column)
+            : this.defaultAttrs.component.data
+          ),
+          ...column
         }
         delete result.hidden
       } else if (type === 'form-item') {
