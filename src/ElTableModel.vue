@@ -185,11 +185,12 @@ export default {
   watch: {
     apiChange: {
       handler(nVal, oVal) {
-        const { page } = this.queryApi
+        const { page: queryPage } = this.queryApi
         if (
           nVal.currentPage > 1 && 
           nVal.currentPage === oVal.currentPage &&
-          typeof page === 'boolean' && page
+          typeof queryPage === 'boolean' &&
+          queryPage
         ) {
           this.currentPage = 1
         } else {
@@ -202,8 +203,11 @@ export default {
     }
   },
   created() {
-    const { immediate } = this.queryApi
-    if (typeof immediate === 'boolean' && immediate) {
+    const { immediate: queryImmediate } = this.queryApi
+    if (
+      typeof queryImmediate === 'boolean' &&
+      queryImmediate
+    ) {
       this.getDataFun()
     } else {
       this.loading = false
@@ -282,34 +286,39 @@ export default {
     },
     async getData() {
       this.loading = true
-      const { page = false, params = {}, method } = this.queryApi
+      const { 
+        page: queryPage = false,
+        params: queryParams = {},
+        method: queryMethod
+      } = this.queryApi
       if (
-        typeof page === 'boolean' &&
-        typeof params === 'object' &&
-        typeof method === 'function'
+        typeof queryPage === 'boolean' &&
+        typeof queryParams === 'object' &&
+        typeof queryMethod === 'function'
       ) {
-        const newParams = page ? {
+        const newParams = queryPage ? {
           [this.defaultAttrs.global.propName.currentPage]: this.currentPage,
           [this.defaultAttrs.global.propName.pageSize]: this.pageSize || this.defaultAttrs?.global?.pageSizes[0],
-          ...params
-        } : params
-        const callback = ({ data = [], total = 0 }) => {
-          if (!Array.isArray(data)) {
-            data = []
+          ...queryParams
+        } : queryParams
+        const callback = (result) => {
+          if (!result || typeof result !== 'object') {
+            result = { data: [], total: 0 }
+          } else if (!Array.isArray(result.data)) {
+            result.data = []
+          } else if (typeof result.total !== 'number') {
+            result.total = 0
           }
-          if (typeof total !== 'number') {
-            total = 0
-          }
-          if (data.length === 0 && this.currentPage > 1) {
+          if (result.data.length === 0 && this.currentPage > 1) {
             --this.currentPage
           } else {
-            this.data = data
-            this.total = total
+            this.data = result.data
+            this.total = result.total
           }
           this.loading = false
           this.currentEditable = null
         }
-        method(newParams, callback)
+        queryMethod(newParams, callback)
       }
     },
     getIndex(index) {
