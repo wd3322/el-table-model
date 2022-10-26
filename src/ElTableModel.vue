@@ -148,7 +148,7 @@ export default {
       default: () => [{}]
     },
     pagination: {
-      type: Array,
+      type: Object,
       required: false,
       default: () => ({})
     },
