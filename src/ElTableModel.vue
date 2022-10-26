@@ -120,11 +120,10 @@
       class="table-model-pagination"
     >
       <el-pagination
-        layout="total, sizes, prev, pager, next, jumper"
-        :page-sizes="defaultAttrs.global.pageSizes"
         :page-size="pageSize"
         :current-page="currentPage"
         :total="total"
+        v-bind="getAttrs('pagination')"
         @size-change="onSetPage('size', $event)"
         @current-change="onSetPage('current', $event)"
       />
@@ -147,6 +146,11 @@ export default {
       type: Array,
       required: true,
       default: () => [{}]
+    },
+    pagination: {
+      type: Array,
+      required: false,
+      default: () => ({})
     },
     rowDragSort: {
       type: [Boolean, Object, Function],
@@ -233,7 +237,11 @@ export default {
       let result = {}
       if (type === 'table') {
         result = {
-          ...this.defaultAttrs.component.table,
+          ...(
+            typeof this.defaultAttrs.component.table === 'object' && this.defaultAttrs.component.table !== null
+            ? this.defaultAttrs.component.table
+            : {}
+          ),
           ...this.$attrs
         }
       } else if (type === 'table-column') {
@@ -281,6 +289,16 @@ export default {
             delete result[prop]
           }
         }
+      } else if (type === 'pagination') {
+        result = {
+          layout: 'total, sizes, prev, pager, next, jumper',
+          ...(
+            typeof this.defaultAttrs.component.pagination === 'object' && this.defaultAttrs.component.pagination !== null
+            ? this.defaultAttrs.component.pagination
+            : {}
+          ),
+          ...this.pagination
+        }
       }
       return result
     },
@@ -298,7 +316,7 @@ export default {
       ) {
         const newParams = queryPage ? {
           [this.defaultAttrs.global.propName.currentPage]: this.currentPage,
-          [this.defaultAttrs.global.propName.pageSize]: this.pageSize || this.defaultAttrs?.global?.pageSizes[0],
+          [this.defaultAttrs.global.propName.pageSize]: this.pageSize || this.getAttrs('pagination').pageSizes[0],
           ...queryParams
         } : queryParams
         const callback = (result) => {
@@ -322,7 +340,7 @@ export default {
       }
     },
     getIndex(index) {
-      return this.loading ? '' : ++index + (this.pageSize || this.defaultAttrs?.global?.pageSizes[0]) * (this.currentPage - 1)
+      return this.loading ? '' : ++index + (this.pageSize || this.getAttrs('pagination').pageSizes[0]) * (this.currentPage - 1)
     },
     getEditable(column, scope) {
       return typeof column.editable === 'function' ? column.editable(scope.row, scope.column, scope.row[column.prop], scope.$index) : true

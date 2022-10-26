@@ -4,8 +4,7 @@ const attrs = {
     propName: {
       currentPage: 'currentPage',
       pageSize: 'pageSize'
-    },
-    pageSizes: [20, 50, 100]
+    }
   },
   component: {
     table: {
@@ -20,6 +19,9 @@ const attrs = {
       } else {
         return {}
       }
+    },
+    pagination: {
+      pageSizes: [20, 50, 100]
     }
   }
 }

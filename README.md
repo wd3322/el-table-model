@@ -46,8 +46,7 @@ Vue.use(ElTableModel, {
     propName: {
       currentPage: 'currentPage',
       pageSize: 'pageSize'
-    },
-    pageSizes: [10, 20, 50, 100]
+    }
   },
   component: {
     table: {
@@ -62,6 +61,9 @@ Vue.use(ElTableModel, {
       } else {
         return {}
       }
+    },
+    pagination: {
+      pageSizes: [20, 50, 100]
     }
   }
 })
@@ -78,6 +80,7 @@ Vue.use(ElTableModel, {
     ref="myTable"
     :query-api="queryApi"
     :columns="columns"
+    :pagination="pagination"
   />
 </template>
 ```
@@ -104,16 +107,21 @@ export default {
       }, {
         label: '地址',
         prop: 'url'
-      }] 
+      }],
+      pagination: { // 可继承pagination属性，不包含currentPage、pageSize、total参数
+        background: true,
+        pageSizes: [5, 10, 20]
+      }
     }
   }
 }
 ```
 
-| Prop      | Prop Type  | Type     | Required |
-| :-------  | :-------   | :------- | :------  |
-| query-api | Attribute  | Object   | True     |
-| columns   | Attribute  | Array    | True     |
+| Prop        | Prop Type  | Type     | Required |
+| :-------    | :-------   | :------- | :------  |
+| query-api   | Attribute  | Object   | True     |
+| columns     | Attribute  | Array    | True     |
+| pagination  | Attribute  | Object   | False    |
 
 ### 组件-继承表格属性
 可继承 `Table` 表格组件属性（Element Table Attributes）
