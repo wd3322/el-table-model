@@ -36,7 +36,7 @@
                   :item="scope.row"
                   :index="scope.$index"
                   :value="scope.row[column.prop]"
-                  :format="column.formatter ? column.formatter(scope.row, scope.column, scope.row[column.prop], scope.$index) : null"
+                  :format="typeof column.formatter === 'function' ? column.formatter(scope.row, scope.column, scope.row[column.prop], scope.$index) : null"
                   :refs="{
                     form: $refs.form,
                     table: $refs.table
@@ -104,7 +104,7 @@
                     :class="getEditable(column, scope) ? 'editable-text' : 'uneditable-text'"
                     @click.stop="onFocusEditable(column.prop, scope.$index, column)"
                   >
-                    {{ column.formatter ? column.formatter(scope.row, scope.column, scope.row[column.prop], scope.$index) : scope.row[column.prop] }}
+                    {{ typeof column.formatter === 'function' ? column.formatter(scope.row, scope.column, scope.row[column.prop], scope.$index) : scope.row[column.prop] }}
                   </span>
                 </div>
               </template>
