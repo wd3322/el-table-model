@@ -14,12 +14,14 @@
           v-bind="getAttrs('table')"
           v-on="$listeners"
         >
-          <template v-for="(column, index) in columns.filter(item => !item.hidden)">
+          <template v-for="(column, index) in columns.filter(column => !column.hidden)">
 
             <el-table-column 
-              :key="index"
+              :key="(column.prop || column.type) + index"
               v-bind="getAttrs('table-column', column)"
             >
+
+              <!-- header slot -->
               <template v-slot:header="scope">
                 <slot 
                   v-if="column.headerSlot"
@@ -29,11 +31,17 @@
                 />
                 <span v-else>{{ scope.column.label }}</span>
               </template>
+
+              <!-- body slot -->
               <template v-slot="scope" v-if="['slot', 'expand', 'editable'].includes(column.type)">
-                <slot 
+
+                <!-- slot type -->
+                <slot
                   v-if="column.type === 'slot'"
                   :name="column.defaultSlot || column.prop"
                   :item="scope.row"
+                  :row="scope.row"
+                  :column="scope.column"
                   :index="scope.$index"
                   :value="scope.row[column.prop]"
                   :format="typeof column.formatter === 'function' ? column.formatter(scope.row, scope.column, scope.row[column.prop], scope.$index) : null"
@@ -42,19 +50,25 @@
                     table: $refs.table
                   }"
                 />
+
+                <!-- expand type -->
                 <slot
                   v-else-if="column.type === 'expand'"
                   name="expand"
                   :index="scope.$index"
                   :row="scope.row"
                 />
+
+                <!-- editable type -->
                 <div v-else-if="column.type === 'editable'">
+                  <!-- form-item -->
                   <span v-if="currentEditable === column.prop + scope.$index || scope.row.$isEditable || validateProp[`list.${scope.$index}.${column.prop}`] === false">
                     <el-form-item
                       :prop="`list.${scope.$index}.${column.prop}`"
                       :rules="column.form.rules"
                       :row-index="scope.$index"
                     >
+                      <!-- component-item -->
                       <span @click.stop>
                         <component
                           :is="{
@@ -76,8 +90,8 @@
                           v-model.trim="scope.row[column.prop]"
                           v-bind="getAttrs('form-item', column, scope)"
                           v-on="column.form.events"
-                          @change="onChangeEditable(scope.row, scope.row[column.prop], column.prop, scope.$index)"
-                          @select="onChangeEditable(scope.row, scope.row[column.prop], column.prop, scope.$index)"
+                          @change="onChangeEditable(scope.row, scope.column, scope.row[column.prop], scope.$index, column.prop)"
+                          @select="onChangeEditable(scope.row, scope.column, scope.row[column.prop], scope.$index, column.prop)"
                         >
                           <template v-if="column.form.type === 'select' && column.form.options">
                             <el-option
@@ -99,20 +113,48 @@
                       </span>
                     </el-form-item>
                   </span>
+                  <!-- text-item -->
                   <span
                     v-else
                     :class="getEditable(column, scope) ? 'editable-text' : 'uneditable-text'"
-                    @click.stop="onFocusEditable(column.prop, scope.$index, column)"
+                    @click.stop="onFocusEditable(scope.row, scope.column, scope.row[column.prop], scope.$index, column.prop)"
                   >
                     {{ typeof column.formatter === 'function' ? column.formatter(scope.row, scope.column, scope.row[column.prop], scope.$index) : scope.row[column.prop] }}
                   </span>
                 </div>
+
               </template>
+
             </el-table-column>
 
           </template>
+
+          <template v-slot:append>
+            <slot 
+              v-if="$scopedSlots.append"
+              name="append"
+              :refs="{
+                form: $refs.form,
+                table: $refs.table
+              }"
+            />
+          </template>
+
         </el-table>
       </el-form>
+    </div>
+
+    <div 
+      v-if="$scopedSlots.between"
+      class="table-model-between"
+    >
+      <slot 
+        name="between"
+        :refs="{
+          form: $refs.form,
+          table: $refs.table
+        }"
+      />
     </div>
 
     <div
@@ -348,31 +390,26 @@ export default {
     clearEditable() {
       this.currentEditable = null
     },
-    onSetPage(type, val) {
-      if (type === 'size') {
-        this.pageSize = val
-      } else if (type === 'current') {
-        this.currentPage = val
-      }
-    },
-    onFocusEditable(prop, index) {
+    onFocusEditable(row, column, value, index, prop) {
       this.currentEditable = prop + index
       this.$nextTick(() => {
         if (this.$refs.editable && this.$refs.editable.length > 0) {
           const el = this.$refs.editable[this.$refs.editable.length - 1]
-          if (el && el.focus) {
-            el.focus()
+          if (el) {
+            el.focus && el.focus()
+            const params = { data: this.data, column, row, value, index, prop, el: el.$el }
+            Object.setPrototypeOf(params, { item: row })
+            this.$emit('cell-editable-focus', params)
           }
         }
       })
     },
-    onValidateForm(prop, valid) {
-      this.$set(this.validateProp, prop, valid)
-    },
-    onChangeEditable(item, value, prop, index) {
+    onChangeEditable(row, column, value, index, prop) {
       setTimeout(() => {
         const valid = this.validateProp[`list.${index}.${prop}`]
-        this.$emit('cell-editable', { data: this.data, item, value, prop, index, valid })
+        const params = { data: this.data, column, row, value, index, prop, valid }
+        Object.setPrototypeOf(params, { item: row })
+        this.$emit('cell-editable-change', params)
       })
     },
     onSetEditable(type, val) {
@@ -383,39 +420,52 @@ export default {
         this.data.splice(val, 1)
       }
     },
-    onSortable(params = {}) {
+    onValidateForm(prop, valid) {
+      this.$set(this.validateProp, prop, valid)
+    },
+    onSetPage(type, val) {
+      if (type === 'size') {
+        this.pageSize = val
+      } else if (type === 'current') {
+        this.currentPage = val
+      }
+    },
+    onSortable(options = {}) {
       document.body.ondrop = e => {
         e.preventDefault()
         e.stopPropagation()
       }
       const sortable = require('sortablejs').default
       const tbody = this.$refs.table.$el.querySelector('.el-table__body-wrapper tbody')
-      const _this = this
       sortable.create(tbody, {
         animation: 150,
-        ...params,
-        onStart(event) {
-          if (typeof params.onEnd === 'function') {
-            params.onStart(event)
+        ...options,
+        onStart: (event) => {
+          if (typeof options.onStart === 'function') {
+            options.onStart(event)
           }
-          const item = _this.data[event.oldIndex]
-          _this.$emit('row-drag-start', { data: _this.data, item, event })
+          const row = this.data[event.oldIndex]
+          const params = { data: this.data, row, event }
+          Object.setPrototypeOf(params, { item: row })
+          this.$emit('row-drag-start', params)
         },
-        onMove(event) {
-          if (typeof params.onEnd === 'function') {
-            params.onMove(event)
+        onMove: (event) => {
+          if (typeof options.onMove === 'function') {
+            options.onMove(event)
           }
-          const item = _this.data[event.oldIndex]
-          _this.$emit('row-drag-move', { data: _this.data, item, event })
+          const params = { data: this.data, event }
+          this.$emit('row-drag-move', params)
         },
-        onEnd(event) {
-          if (typeof params.onEnd === 'function') {
-            params.onEnd(event)
+        onEnd: (event) => {
+          if (typeof options.onEnd === 'function') {
+            options.onEnd(event)
           }
           const { newIndex, oldIndex } = event
-          const currRow = _this.data.splice(oldIndex, 1)[0]
-          _this.data.splice(newIndex, 0, currRow)
-          _this.$emit('row-drag-end', { data: _this.data, item: currRow, event })
+          const row = this.data.splice(oldIndex, 1)[0]
+          const params = { data: this.data, row, event }
+          Object.setPrototypeOf(params, { item: row })
+          this.data.splice(newIndex, 0, row)
+          this.$emit('row-drag-end', params)
         }
       })
     },

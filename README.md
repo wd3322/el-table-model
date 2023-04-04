@@ -50,6 +50,7 @@ Vue.use(ElTableModel, {
   },
   component: {
     table: {
+      size: 'medium',
       border: true,
       highlightCurrentRow: true
     },
@@ -344,13 +345,16 @@ export default {
       {{ params.value }} / 自定义数据内容
     </template>
     <template v-slot:customButton="params">
-      <el-button
-        size="mini"
-        type="primary"
-        @click="onAction(params)"
-      >
-        按钮
-      </el-button>
+      <el-link>自定义按钮</el-link>
+    </template>
+    <template v-slot:expand="{ index, row }">
+      展开行的内容
+    </template>
+    <template v-slot:append="{ tableRef }">
+      插入至表格最后一行之后的内容
+    </template>
+    <template v-slot:between="{ tableRef }">
+      表格与分页之间的内容
     </template>
   </el-table-model>
 </template>
@@ -362,6 +366,8 @@ export default {
     return {
       queryApi: { ... },
       columns: [{
+        type: 'expand'
+      }, {
         label: '标题',
         prop: 'title',
         headerSlot: 'customHeader'
@@ -484,7 +490,7 @@ export default {
   </el-button>
   <el-button
     type="primary"
-    :disabled="tableData.some(item => item.$isEditable)"
+    :disabled="tableData.some(row => row.$isEditable)"
     @click="onAddRow"
   >
     添加一行数据（存在未保存的情况不可添加）
@@ -493,13 +499,14 @@ export default {
     ref="myTable"
     :query-api="queryApi"
     :columns="columns"
-    @cell-editable="onCellEditable"
+    @cell-editable-focus="onFocusEditable"
+    @cell-editable-change="onChangeEditable"
   >
     <template v-slot:optionSlot="{ label, value }">
       <i class="el-icon-edit" />{{ label }}: {{ value }}
     </template>
     <template v-slot:button="params">
-      <el-button-group v-if="!params.item.$isEditable">
+      <el-button-group v-if="!params.row.$isEditable">
         <el-button 
           size="mini"
           type="primary"
@@ -536,8 +543,10 @@ export default {
         immediate: true,
         method: (params, callback) => {
           const res = { 
-            data: [{ 
+            data: [{
+              id: '1',
               myInput: 'apple',
+              myAutocomplete: 'banana',
               mySelect: 0,
               myCascader: ['zhinan', 'shejiyuanze'],
               myCount: 20,
@@ -562,23 +571,40 @@ export default {
           type: 'input',
           maxlength: 50,
           width: '100%',
-          events: {
+          events: { // 继承表单元素事件
             focus: e => {
-              // console.log('myInput focus', e)
+              console.log('myInput focus', e)
             },
             blur: e => {
-              // console.log('myInput blur', e)
+              console.log('myInput blur', e)
             },
             change: val => {
-              // console.log('myInput change', val)
+              console.log('myInput change', val)
             }
           },
-          rules: [
+          rules: [ // 继承表单元素属性
             { required: true, message: '请输入...', trigger: 'blur' }
           ]
         },
-        editable: (row, column, cellValue, index) => {
+        editable: (row, column, cellValue, index) => { // 控制该数据是否可编辑
           return index !== 0
+        }
+      }, {
+        label: '自动补全',
+        prop: 'myAutocomplete',
+        type: 'editable',
+        form: {
+          type: 'autocomplete',
+          width: '100%',
+          fetchSuggestions: (val, callback) => {
+            callback([
+              { value: '选项1' },
+              { value: '选项2' }
+            ])
+          },
+          rules: [
+            { required: true, message: '请输入...', trigger: 'change' }
+          ]
         }
       }, {
         label: '下拉框',
@@ -700,16 +726,19 @@ export default {
     }
   },
   methods: {
-    onCellEditable(params) {
-      console.log('onCellEditable', params)
+    onFocusEditable(params) {
+      console.log('onFocusEditable', params)
+    },
+    onChangeEditable(params) {
+      console.log('onChangeEditable', params)
     },
     onSaveRow(params) {
-      const { index, item, refs } = params
+      const { index, row, refs } = params
       refs.form.validate((valid, object) => {
         const objectKeys = Object.keys(object)
-        const isValid = objectKeys.every(item => item.indexOf(`list.${index}.`) === -1)
+        const isValid = objectKeys.every(key => key.indexOf(`list.${index}.`) === -1)
         if (isValid) { 
-          item.$isEditable = false
+          row.$isEditable = false
         }
       })
     },
@@ -735,6 +764,7 @@ export default {
 }
 ```
 
-| Prop           | Prop Type    | Type                | Required |
-| :-------       | :-------     | :-------            | :------  |
-| cell-editable  | Event        | Function            | False    |
+| Prop                  | Prop Type    | Type                | Required |
+| :-------              | :-------     | :-------            | :------  |
+| cell-editable-focus   | Event        | Function            | False    |
+| cell-editable-change  | Event        | Function            | False    |
