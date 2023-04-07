@@ -28,7 +28,12 @@ export default {
     }
   },
   render: function(createElement) {
-    return this.renderContent(createElement, this.row, this.column, this.value, this.index)
+    return this.renderContent(createElement, {
+      row: this.row,
+      column: this.column,
+      value: this.value,
+      index: this.index
+    })
   }
 }
 </script>

@@ -319,8 +319,8 @@ export default {
         className: 'title-class',
         sortable: true,
         showOverflowTooltip: true,
-        formatter (row, column, cellValue, index) {
-          return 'formatter' + cellValue
+        formatter (row, column, value, index) {
+          return 'formatter' + value
         }
       }]
     }
@@ -339,7 +339,7 @@ export default {
         label: '标题',
         prop: 'title',
         type: 'render',
-        renderContent(h, row, column, cellValue, index) {
+        renderContent(h, { row, column, value, index }) {
           return h('span', {
             style: {
               color: '#333333',
@@ -347,10 +347,10 @@ export default {
             },
             on: {
               click: () => {
-                console.log('renderContent', row, column, cellValue, index)
+                console.log('renderContent', row, column, value, index)
               }
             }
-          }, cellValue)
+          }, value)
         }
       }]
     }
@@ -616,7 +616,7 @@ export default {
             { required: true, message: '请输入...', trigger: 'blur' }
           ]
         },
-        editable: (row, column, cellValue, index) => { // 控制该数据是否可编辑
+        editable: (row, column, value, index) => { // 控制该数据是否可编辑
           return index !== 0
         }
       }, {
@@ -652,8 +652,8 @@ export default {
             { required: true, message: '请选择...', trigger: 'change' }
           ]
         },
-        formatter: (row, column, cellValue, index) => {
-          return ['选项1', '选项2', '选项3'][cellValue]
+        formatter: (row, column, value, index) => {
+          return ['选项1', '选项2', '选项3'][value]
         }
       }, {
         label: '级联选择',
@@ -671,8 +671,8 @@ export default {
             }]
           }]
         },
-        formatter: (row, column, cellValue, index) => {
-          return cellValue.join(' / ')
+        formatter: (row, column, value, index) => {
+          return value.join(' / ')
         }
       }, {
         label: '计数器',
@@ -693,8 +693,8 @@ export default {
           width: '100%'
         },
         // install dayjs for data formatter
-        // formatter: (row, column, cellValue, index) => {
-        //   return dayjs(cellValue).format('HH:mm:ss')
+        // formatter: (row, column, value, index) => {
+        //   return dayjs(value).format('HH:mm:ss')
         // }
       }, {
         label: '日期',
@@ -727,8 +727,8 @@ export default {
           width: '100%'
         },
         // install dayjs for data formatter
-        // formatter: (row, column, cellValue, index) => {
-        //   return dayjs(cellValue).format('YYYY-MM-DD HH:mm:ss')
+        // formatter: (row, column, value, index) => {
+        //   return dayjs(value).format('YYYY-MM-DD HH:mm:ss')
         // }
       }, {
         label: '月份',

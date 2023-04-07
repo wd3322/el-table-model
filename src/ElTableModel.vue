@@ -67,6 +67,7 @@
                   name="expand"
                   :index="scope.$index"
                   :row="scope.row"
+                  :column="scope.column"
                 />
 
                 <!-- editable type -->
