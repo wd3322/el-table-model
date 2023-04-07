@@ -33,11 +33,21 @@
               </template>
 
               <!-- body slot -->
-              <template v-slot="scope" v-if="['slot', 'expand', 'editable'].includes(column.type)">
+              <template v-slot="scope" v-if="['render', 'slot', 'expand', 'editable'].includes(column.type)">
+
+                <!-- render type -->
+                <el-table-model-column
+                  v-if="column.type === 'render'"
+                  :render-content="column.renderContent"
+                  :row="scope.row"
+                  :column="scope.column"
+                  :index="scope.$index"
+                  :value="scope.row[column.prop]"
+                />
 
                 <!-- slot type -->
                 <slot
-                  v-if="column.type === 'slot'"
+                  v-else-if="column.type === 'slot'"
                   :name="column.defaultSlot || column.prop"
                   :item="scope.row"
                   :row="scope.row"
@@ -175,9 +185,13 @@
 
 <script>
 import { debounce } from 'debounce'
+import ElTableModelColumn from './components/ElTableModelColumn.vue'
 
 export default {
   name: 'ElTableModel',
+  components: {
+    ElTableModelColumn
+  },
   props: {
     queryApi: {
       type: Object,

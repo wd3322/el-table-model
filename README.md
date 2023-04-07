@@ -328,6 +328,36 @@ export default {
 }
 ```
 
+### 数据-渲染
+可通过 `type` 属性设置为 `'render'` 值，并使用 `renderContent` 属性创建渲染函数
+
+```javascript
+export default {
+  data() {
+    return {
+      columns: [{
+        label: '标题',
+        prop: 'title',
+        type: 'render',
+        renderContent(h, row, column, cellValue, index) {
+          return h('span', {
+            style: {
+              color: '#333333',
+              cursor: 'pointer'
+            },
+            on: {
+              click: () => {
+                console.log('renderContent', row, column, cellValue, index)
+              }
+            }
+          }, cellValue)
+        }
+      }]
+    }
+  }
+}
+```
+
 ### 数据-插槽
 可通过 `headerSlot` 属性设置自定义表头插槽内容，`type` 属性设置为 `'slot'` 值时，将优先指向其 `defaultSlot` 属性值的具名插槽，如若为空则指向 `prop` 属性值的具名插槽
 
