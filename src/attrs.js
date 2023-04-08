@@ -7,11 +7,13 @@ const attrs = {
     }
   },
   component: {
-    table: {
-      border: true,
-      highlightCurrentRow: true
+    table(ctx) {
+      return {
+        border: true,
+        highlightCurrentRow: true
+      }
     },
-    tableColumn(column) {
+    tableColumn(ctx, column) {
       if (column.type === 'index') {
         return {
           width: 60

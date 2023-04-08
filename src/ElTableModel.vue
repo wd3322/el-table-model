@@ -295,9 +295,9 @@ export default {
       if (type === 'table') {
         result = {
           ...(
-            typeof this.defaultAttrs.component.table === 'object' && this.defaultAttrs.component.table !== null
-            ? this.defaultAttrs.component.table
-            : {}
+            typeof this.defaultAttrs.component.table === 'function'
+            ? this.defaultAttrs.component.table(this)
+            : this.defaultAttrs.component.table
           ),
           ...this.$attrs
         }
@@ -305,8 +305,8 @@ export default {
         result = {
           ...(
             typeof this.defaultAttrs.component.tableColumn === 'function'
-            ? this.defaultAttrs.component.tableColumn(column)
-            : {}
+            ? this.defaultAttrs.component.tableColumn(this, column)
+            : this.defaultAttrs.component.tableColumn
           ),
           ...column
         }
