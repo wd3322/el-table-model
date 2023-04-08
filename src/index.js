@@ -20,7 +20,7 @@ const Loading = {
     if (!attrs.global.propName.pageSize || typeof attrs.global.propName.pageSize !== 'string') {
       throw { message: `${errorHeader} 'global.propName.pageSize' is not a string` }
     }
-    if (!attrs.component || typeof attrs.component !== 'string') {
+    if (!attrs.component || typeof attrs.component !== 'object') {
       throw { message: `${errorHeader} 'component' is not a object` }
     }
     if (!attrs.component.table || (typeof attrs.component.table !== 'object' && typeof attrs.component.table !== 'function')) {
