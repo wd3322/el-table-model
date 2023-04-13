@@ -31,8 +31,8 @@ export default {
     return this.renderContent(createElement, {
       row: this.row,
       column: this.column,
-      value: this.value,
-      index: this.index
+      index: this.index,
+      value: this.value
     })
   }
 }
