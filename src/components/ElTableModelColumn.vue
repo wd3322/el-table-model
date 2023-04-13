@@ -12,14 +12,14 @@ export default {
       required: true,
       default: () => ({})
     },
-    value: {
-      required: false,
-      default: ''
-    },
     index: {
       type: Number,
       required: true,
       default: 0
+    },
+    value: {
+      required: false,
+      default: ''
     },
     renderContent: {
       type: Function,
