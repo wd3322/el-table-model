@@ -350,9 +350,9 @@ export default {
         result = {
           layout: 'total, sizes, prev, pager, next, jumper',
           ...(
-            typeof this.defaultAttrs.component.pagination === 'object' && this.defaultAttrs.component.pagination !== null
-            ? this.defaultAttrs.component.pagination
-            : {}
+            typeof this.defaultAttrs.component.pagination === 'function'
+            ? this.defaultAttrs.component.pagination(this)
+            : this.defaultAttrs.component.pagination
           ),
           ...this.pagination
         }

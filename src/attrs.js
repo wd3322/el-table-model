@@ -22,8 +22,10 @@ const attrs = {
         return {}
       }
     },
-    pagination: {
-      pageSizes: [20, 50, 100]
+    pagination(ctx) {
+      return {
+        pageSizes: [20, 50, 100]
+      }
     }
   }
 }
