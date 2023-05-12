@@ -27,13 +27,13 @@ const Loading = {
     if (Utils.getPrototype(attrs.component) !== 'object') {
       throw new Error(`${errorHeader} 'component' is not a object`)
     }
-    if (!['object', 'function'].includes(Utils.getPrototype(attrs.component.table))) {
+    if (!['object', 'function', 'asyncfunction'].includes(Utils.getPrototype(attrs.component.table))) {
       throw new Error(`${errorHeader} 'component.table' is not a object or function`)
     }
-    if (!['object', 'function'].includes(Utils.getPrototype(attrs.component.tableColumn))) {
+    if (!['object', 'function', 'asyncfunction'].includes(Utils.getPrototype(attrs.component.tableColumn))) {
       throw new Error(`${errorHeader} 'component.tableColumn' is not a object or function`)
     }
-    if (!['object', 'function'].includes(Utils.getPrototype(attrs.component.pagination))) {
+    if (!['object', 'function', 'asyncfunction'].includes(Utils.getPrototype(attrs.component.pagination))) {
       throw new Error(`${errorHeader} 'component.pagination' is not a object or function`)
     }
     const mixin = DefaultAttrs.get(attrs)

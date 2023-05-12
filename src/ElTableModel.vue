@@ -293,7 +293,7 @@ export default {
     } else if (Utils.getPrototype(this.rowDragSort) === 'object') {
       const params = this.rowDragSort
       this.onSortable(params)
-    } else if (Utils.getPrototype(this.rowDragSort) === 'function') {
+    } else if (['function', 'asyncfunction'].includes(Utils.getPrototype(this.rowDragSort))) {
       const params = this.rowDragSort({ ref: this.$refs.table })
       this.onSortable(params)
     }
@@ -308,7 +308,7 @@ export default {
       if (type === 'table') {
         result = {
           ...(
-            Utils.getPrototype(this.defaultAttrs.component.table) === 'function'
+            ['function', 'asyncfunction'].includes(Utils.getPrototype(this.defaultAttrs.component.table))
               ? this.defaultAttrs.component.table(this)
               : this.defaultAttrs.component.table
           ),
@@ -317,7 +317,7 @@ export default {
       } else if (type === 'table-column') {
         result = {
           ...(
-            Utils.getPrototype(this.defaultAttrs.component.tableColumn) === 'function'
+            ['function', 'asyncfunction'].includes(Utils.getPrototype(this.defaultAttrs.component.tableColumn))
               ? this.defaultAttrs.component.tableColumn(this, column)
               : this.defaultAttrs.component.tableColumn
           ),
@@ -363,7 +363,7 @@ export default {
         result = {
           layout: 'total, sizes, prev, pager, next, jumper',
           ...(
-            Utils.getPrototype(this.defaultAttrs.component.pagination) === 'function'
+            ['function', 'asyncfunction'].includes(Utils.getPrototype(this.defaultAttrs.component.pagination))
               ? this.defaultAttrs.component.pagination(this)
               : this.defaultAttrs.component.pagination
           ),
@@ -382,7 +382,7 @@ export default {
       if (
         Utils.getPrototype(queryPage) !== 'boolean' ||
         Utils.getPrototype(queryParams) !== 'object' ||
-        Utils.getPrototype(queryMethod) !== 'function'
+        !['function', 'asyncfunction'].includes(Utils.getPrototype(queryMethod))
       ) {
         return
       }
@@ -418,11 +418,11 @@ export default {
     },
     getEditable(type, column, scope) {
       if (type === 'state') {
-        return Utils.getPrototype(column.editable) === 'function'
+        return ['function', 'asyncfunction'].includes(Utils.getPrototype(column.editable))
           ? column.editable(scope.row, scope.column, scope.row[column.prop], scope.$index)
           : true
       } else if (type === 'value') {
-        return Utils.getPrototype(column.formatter) === 'function'
+        return ['function', 'asyncfunction'].includes(Utils.getPrototype(column.formatter))
           ? column.formatter(scope.row, scope.column, scope.row[column.prop], scope.$index)
           : scope.row[column.prop]
       }
@@ -485,14 +485,14 @@ export default {
           const params = { data: this.data, row, event }
           Object.setPrototypeOf(params, { item: row })
           this.$emit('row-drag-start', params)
-          if (Utils.getPrototype(options.onStart) === 'function') {
+          if (['function', 'asyncfunction'].includes(Utils.getPrototype(options.onStart))) {
             options.onStart(event)
           }
         },
         onMove: (event) => {
           const params = { data: this.data, event }
           this.$emit('row-drag-move', params)
-          if (Utils.getPrototype(options.onMove) === 'function') {
+          if (['function', 'asyncfunction'].includes(Utils.getPrototype(options.onMove))) {
             options.onMove(event)
           }
         },
@@ -503,7 +503,7 @@ export default {
           Object.setPrototypeOf(params, { item: row })
           this.data.splice(newIndex, 0, row)
           this.$emit('row-drag-end', params)
-          if (Utils.getPrototype(options.onEnd) === 'function') {
+          if (['function', 'asyncfunction'].includes(Utils.getPrototype(options.onEnd))) {
             options.onEnd(event)
           }
         }
