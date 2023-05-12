@@ -27,7 +27,7 @@ export default {
       default: () => {}
     }
   },
-  render: function(createElement) {
+  render(createElement) {
     return this.renderContent(createElement, {
       row: this.row,
       column: this.column,

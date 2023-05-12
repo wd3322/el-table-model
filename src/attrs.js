@@ -1,6 +1,7 @@
 
 const attrs = {
   global: {
+    activatedRefresh: false,
     propName: {
       currentPage: 'currentPage',
       pageSize: 'pageSize'
@@ -32,8 +33,8 @@ const attrs = {
 
 const get = ({ global, component }) => {
   return {
-    data () {
-      return { 
+    data() {
+      return {
         defaultAttrs: {
           global: {
             ...attrs.global,

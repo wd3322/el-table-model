@@ -1,28 +1,31 @@
-# vue element table to json
+# Vue Element Table To Json
 
-**Git地址**
+### Git地址
 
 [Github](https://github.com/wd3322/el-table-model)
 
 [Gitee](https://gitee.com/wd3322/el-table-model)
 
-
 ![el-table-model](https://wd3322.github.io/to-vue3/img/el-table-model/table-demo.png)
 
-## 渲染
+### 渲染
 ![base](https://wd3322.github.io/to-vue3/img/el-table-model/table-base.gif)
 
-## 可编辑
+### 可编辑
 ![editable](https://wd3322.github.io/to-vue3/img/el-table-model/table-editable.gif)
 
-## 可拖动
+### 可拖动
 ![draggable](https://wd3322.github.io/to-vue3/img/el-table-model/table-draggable.gif)
+
+---
 
 ## 下载
 
 ```
 npm install el-table-model
 ```
+
+---
 
 ## 引用
 在 main.js 中写入以下内容，请使用 `element-ui v2.15.X` 以上版本
@@ -38,11 +41,14 @@ Vue.use(ElementUI)
 Vue.use(ElTableModel)
 ```
 
+---
+
 ### 引用-默认参数（可选）
 
 ```javascript
 Vue.use(ElTableModel, {
   global: {
+    activatedRefresh: false,
     propName: {
       currentPage: 'currentPage',
       pageSize: 'pageSize'
@@ -74,6 +80,8 @@ Vue.use(ElTableModel, {
 })
 ```
 
+---
+
 # 组件
 
 ### 组件-基础
@@ -86,6 +94,7 @@ Vue.use(ElTableModel, {
     :query-api="queryApi"
     :columns="columns"
     :pagination="pagination"
+    :activated-refresh="activatedRefresh"
   />
 </template>
 ```
@@ -94,7 +103,7 @@ Vue.use(ElTableModel, {
 export default {
   data() {
     return {
-      queryApi: { // 详见请求章节
+      queryApi: { // 请求API，详见请求章节
         immediate: true,
         method: (params, callback) => {
           callback({ 
@@ -106,7 +115,7 @@ export default {
           })
         }
       }, 
-      columns: [{ // 详见数据章节
+      columns: [{ // 表格数据列，详见数据章节
         label: '标题',
         prop: 'title'
       }, {
@@ -116,17 +125,21 @@ export default {
       pagination: { // 可继承pagination属性，不包含currentPage、pageSize、total参数
         background: true,
         pageSizes: [5, 10, 20]
-      }
+      },
+      activatedRefresh: false, // 缓存激活时刷新
     }
   }
 }
 ```
 
-| Prop        | Prop Type  | Type     | Required |
-| :-------    | :-------   | :------- | :------  |
-| query-api   | Attribute  | Object   | True     |
-| columns     | Attribute  | Array    | True     |
-| pagination  | Attribute  | Object   | False    |
+| Prop                | Prop Type  | Type     | Required |
+| :-------            | :-------   | :------- | :------  |
+| query-api           | Attribute  | Object   | True     |
+| columns             | Attribute  | Array    | True     |
+| pagination          | Attribute  | Object   | False    |
+| activated-refresh   | Attribute  | Boolean  | False    |
+
+---
 
 ### 组件-继承表格属性
 可继承 `Table` 表格组件属性（Element Table Attributes）
@@ -147,6 +160,8 @@ export default {
 </template>
 ```
 
+---
+
 ### 组件-继承表格事件
 可继承 `Table` 表格组件事件（Element Table Events）
 
@@ -162,6 +177,8 @@ export default {
   />
 </template>
 ```
+
+---
 
 ### 组件-执行表格事件
 可执行 `Table` 表单组件方法（Element Table Methods）
@@ -185,6 +202,8 @@ export default {
   }
 }
 ```
+
+---
 
 # 请求
 
@@ -211,6 +230,8 @@ export default {
   }
 }
 ```
+
+---
 
 ### 请求-动态数据
 通过 `method` 方法中的 `callback` 方法返回给组件列表数据
@@ -241,6 +262,8 @@ export default {
 }
 ```
 
+---
+
 ### 请求-主动执行
 当执行 `ref.getData()` 方法时，组件会执行 `queryApi.method` 方法
 
@@ -253,6 +276,8 @@ export default {
   }
 }
 ```
+
+---
 
 ### 请求-后续执行
 当 `queryApi.immediate` 属性从初始化的 `false` 变更为 `true` 时，组件会执行 `queryApi.method` 方法
@@ -267,6 +292,8 @@ export default {
 }
 ```
 
+---
+
 ### 请求-修改参数
 当 `queryApi.params` 属性中的参数发生变更时，组件会自动执行 `queryApi.method` 方法
 
@@ -279,6 +306,8 @@ export default {
   }
 }
 ```
+
+---
 
 # 数据
 
@@ -308,6 +337,8 @@ export default {
 }
 ```
 
+---
+
 ### 数据-继承表格列属性
 可继承 `Table-column` 表格列属性（Element Table-column Attributes）
 
@@ -331,6 +362,8 @@ export default {
   }
 }
 ```
+
+---
 
 ### 数据-渲染
 可通过 `type` 属性设置为 `'render'` 值，并使用 `renderContent` 属性创建渲染函数
@@ -361,6 +394,8 @@ export default {
   }
 }
 ```
+
+---
 
 ### 数据-插槽
 可通过 `headerSlot` 属性设置自定义表头插槽内容，`type` 属性设置为 `'slot'` 值时，将优先指向其 `defaultSlot` 属性值的具名插槽，如若为空则指向 `prop` 属性值的具名插槽
@@ -394,6 +429,8 @@ export default {
 </template>
 ```
 
+---
+
 ```javascript
 export default {
   data() {
@@ -425,6 +462,8 @@ export default {
 }
 ```
 
+---
+
 ### 数据-可拖动
 可通过 `row-drag-sort` 属性设置开启数据行拖拽排序功能，同时需设置 `row-key` 属性确保数据行的唯一性
 
@@ -442,6 +481,8 @@ export default {
   />
 </template>
 ```
+
+---
 
 ```javascript
 export default {
@@ -471,6 +512,8 @@ export default {
 | row-drag-start | Event        | Function                    | False    |
 | row-drag-move  | Event        | Function                    | False    |
 | row-drag-end   | Event        | Function                    | False    |
+
+---
 
 ### 数据-可拖动-继承Sortablejs选项
 可通过 `row-drag-sort` 属性设置 `Sortablejs` 插件的扩展选项（Sortablejs Options）
@@ -510,6 +553,8 @@ export default {
   }
 }
 ```
+
+---
 
 ### 数据-可编辑
 可通过 `type` 属性设置 `'editable'` 值开启数据可编辑功能，在 `form` 属性中添加表单子项组件
@@ -567,6 +612,8 @@ export default {
   </el-table-model>
 </template>
 ```
+
+---
 
 ```javascript
 export default {

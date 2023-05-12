@@ -1,7 +1,7 @@
 <template>
   <div class="table-model-wrap">
     <div class="table-model-content">
-      <el-form 
+      <el-form
         ref="form"
         :model="formModel"
         @validate="onValidateForm"
@@ -16,14 +16,14 @@
         >
           <template v-for="(column, index) in columns.filter(column => !column.hidden)">
 
-            <el-table-column 
+            <el-table-column
               :key="(column.prop || column.type) + index"
               v-bind="getAttrs('table-column', column)"
             >
 
               <!-- header slot -->
               <template v-slot:header="scope">
-                <slot 
+                <slot
                   v-if="column.headerSlot"
                   :name="column.headerSlot"
                   :index="scope.$index"
@@ -111,7 +111,7 @@
                               v-bind="option"
                             >
                               <span v-if="option.type === 'slot'">
-                                <slot 
+                                <slot
                                   :name="option.label"
                                   :label="option.label"
                                   :value="option.value"
@@ -127,10 +127,10 @@
                   <!-- text-item -->
                   <span
                     v-else
-                    :class="getEditable(column, scope) ? 'editable-text' : 'uneditable-text'"
+                    :class="getEditable('state', column, scope) ? 'editable-text' : 'uneditable-text'"
                     @click.stop="onFocusEditable(scope.row, scope.column, scope.row[column.prop], scope.$index, column.prop)"
                   >
-                    {{ typeof column.formatter === 'function' ? column.formatter(scope.row, scope.column, scope.row[column.prop], scope.$index) : scope.row[column.prop] }}
+                    {{ getEditable('value', column, scope) }}
                   </span>
                 </div>
 
@@ -141,7 +141,7 @@
           </template>
 
           <template v-slot:append>
-            <slot 
+            <slot
               v-if="$scopedSlots.append"
               name="append"
               :refs="{
@@ -155,11 +155,11 @@
       </el-form>
     </div>
 
-    <div 
+    <div
       v-if="$scopedSlots.between"
       class="table-model-between"
     >
-      <slot 
+      <slot
         name="between"
         :refs="{
           form: $refs.form,
@@ -186,6 +186,7 @@
 
 <script>
 import { debounce } from 'debounce'
+import Utils from './utils.js'
 import ElTableModelColumn from './components/ElTableModelColumn.vue'
 
 export default {
@@ -209,21 +210,27 @@ export default {
       required: false,
       default: () => ({})
     },
+    activatedRefresh: {
+      type: [Boolean, undefined],
+      required: false,
+      default: undefined
+    },
     rowDragSort: {
       type: [Boolean, Object, Function],
+      required: false,
       default: false
     }
   },
   data() {
     return {
-      loading: true,
+      loading: false,
       data: [],
       pageSize: 0,
       currentPage: 1,
       total: 0,
       currentEditable: '',
       validateProp: {},
-      getDataFun: debounce(this.getData, 200)
+      getDataFunc: debounce(this.getData, 200)
     }
   },
   computed: {
@@ -248,15 +255,14 @@ export default {
       handler(nVal, oVal) {
         const { page: queryPage } = this.queryApi
         if (
-          nVal.currentPage > 1 && 
+          nVal.currentPage > 1 &&
           nVal.currentPage === oVal.currentPage &&
-          typeof queryPage === 'boolean' &&
-          queryPage
+          queryPage === true
         ) {
           this.currentPage = 1
         } else {
           this.loading = true
-          this.getDataFun()
+          this.getDataFunc()
         }
       },
       immediate: false,
@@ -265,22 +271,29 @@ export default {
   },
   created() {
     const { immediate: queryImmediate } = this.queryApi
+    if (queryImmediate === true) {
+      this.loading = true
+      this.getDataFunc()
+    }
+  },
+  activated() {
+    const { immediate: queryImmediate } = this.queryApi
     if (
-      typeof queryImmediate === 'boolean' &&
-      queryImmediate
+      queryImmediate === true &&
+      this.activatedRefresh !== false &&
+      (this.activatedRefresh || this.defaultAttrs.global.activatedRefresh)
     ) {
-      this.getDataFun()
-    } else {
-      this.loading = false
+      this.loading = true
+      this.getDataFunc()
     }
   },
   mounted() {
     if (this.rowDragSort === true) {
       this.onSortable()
-    } else if (typeof this.rowDragSort === 'object') {
+    } else if (Utils.getPrototype(this.rowDragSort) === 'object') {
       const params = this.rowDragSort
       this.onSortable(params)
-    } else if (typeof this.rowDragSort === 'function') {
+    } else if (Utils.getPrototype(this.rowDragSort) === 'function') {
       const params = this.rowDragSort({ ref: this.$refs.table })
       this.onSortable(params)
     }
@@ -295,18 +308,18 @@ export default {
       if (type === 'table') {
         result = {
           ...(
-            typeof this.defaultAttrs.component.table === 'function'
-            ? this.defaultAttrs.component.table(this)
-            : this.defaultAttrs.component.table
+            Utils.getPrototype(this.defaultAttrs.component.table) === 'function'
+              ? this.defaultAttrs.component.table(this)
+              : this.defaultAttrs.component.table
           ),
           ...this.$attrs
         }
       } else if (type === 'table-column') {
         result = {
           ...(
-            typeof this.defaultAttrs.component.tableColumn === 'function'
-            ? this.defaultAttrs.component.tableColumn(this, column)
-            : this.defaultAttrs.component.tableColumn
+            Utils.getPrototype(this.defaultAttrs.component.tableColumn) === 'function'
+              ? this.defaultAttrs.component.tableColumn(this, column)
+              : this.defaultAttrs.component.tableColumn
           ),
           ...column
         }
@@ -337,7 +350,7 @@ export default {
           result.props = column.form.props
           excludeProps.push('props')
         }
-        if (!this.getEditable(column, scope)) {
+        if (!this.getEditable('state', column, scope)) {
           result.disabled = true
         }
         const props = ['width', 'rules', 'events', ...appendProps]
@@ -350,9 +363,9 @@ export default {
         result = {
           layout: 'total, sizes, prev, pager, next, jumper',
           ...(
-            typeof this.defaultAttrs.component.pagination === 'function'
-            ? this.defaultAttrs.component.pagination(this)
-            : this.defaultAttrs.component.pagination
+            Utils.getPrototype(this.defaultAttrs.component.pagination) === 'function'
+              ? this.defaultAttrs.component.pagination(this)
+              : this.defaultAttrs.component.pagination
           ),
           ...this.pagination
         }
@@ -361,46 +374,58 @@ export default {
     },
     async getData() {
       this.loading = true
-      const { 
+      const {
         page: queryPage = false,
         params: queryParams = {},
         method: queryMethod
       } = this.queryApi
       if (
-        typeof queryPage === 'boolean' &&
-        typeof queryParams === 'object' &&
-        typeof queryMethod === 'function'
+        Utils.getPrototype(queryPage) !== 'boolean' ||
+        Utils.getPrototype(queryParams) !== 'object' ||
+        Utils.getPrototype(queryMethod) !== 'function'
       ) {
-        const newParams = queryPage ? {
-          [this.defaultAttrs.global.propName.currentPage]: this.currentPage,
-          [this.defaultAttrs.global.propName.pageSize]: this.pageSize || this.getAttrs('pagination').pageSizes[0],
-          ...queryParams
-        } : queryParams
-        const callback = (result) => {
-          if (!result || typeof result !== 'object') {
-            result = { data: [], total: 0 }
-          } else if (!Array.isArray(result.data)) {
-            result.data = []
-          } else if (typeof result.total !== 'number') {
-            result.total = 0
-          }
-          if (result.data.length === 0 && this.currentPage > 1) {
-            --this.currentPage
-          } else {
-            this.data = result.data
-            this.total = result.total
-          }
-          this.loading = false
-          this.currentEditable = null
-        }
-        queryMethod(newParams, callback)
+        return
       }
+      if (queryPage) {
+        queryParams[this.defaultAttrs.global.propName.currentPage] = this.currentPage
+        queryParams[this.defaultAttrs.global.propName.pageSize] = this.pageSize || this.getAttrs('pagination').pageSizes[0]
+      }
+      const queryCallback = (result) => {
+        if (Utils.getPrototype(result) !== 'object') {
+          result = { data: [], total: 0 }
+        }
+        if (Utils.getPrototype(result.data) !== 'array') {
+          result.data = []
+        }
+        if (Utils.getPrototype(result.total) !== 'number') {
+          result.total = 0
+        }
+        if (result.data.length === 0 && this.currentPage > 1) {
+          --this.currentPage
+        } else {
+          this.data = result.data
+          this.total = result.total
+        }
+        this.loading = false
+        this.currentEditable = null
+      }
+      queryMethod(queryParams, queryCallback)
     },
     getIndex(index) {
-      return this.loading ? '' : ++index + (this.pageSize || this.getAttrs('pagination').pageSizes[0]) * (this.currentPage - 1)
+      return !this.loading
+        ? ++index + (this.pageSize || this.getAttrs('pagination').pageSizes[0]) * (this.currentPage - 1)
+        : ''
     },
-    getEditable(column, scope) {
-      return typeof column.editable === 'function' ? column.editable(scope.row, scope.column, scope.row[column.prop], scope.$index) : true
+    getEditable(type, column, scope) {
+      if (type === 'state') {
+        return Utils.getPrototype(column.editable) === 'function'
+          ? column.editable(scope.row, scope.column, scope.row[column.prop], scope.$index)
+          : true
+      } else if (type === 'value') {
+        return Utils.getPrototype(column.formatter) === 'function'
+          ? column.formatter(scope.row, scope.column, scope.row[column.prop], scope.$index)
+          : scope.row[column.prop]
+      }
     },
     clearEditable() {
       this.currentEditable = null
@@ -456,31 +481,31 @@ export default {
         animation: 150,
         ...options,
         onStart: (event) => {
-          if (typeof options.onStart === 'function') {
-            options.onStart(event)
-          }
           const row = this.data[event.oldIndex]
           const params = { data: this.data, row, event }
           Object.setPrototypeOf(params, { item: row })
           this.$emit('row-drag-start', params)
+          if (Utils.getPrototype(options.onStart) === 'function') {
+            options.onStart(event)
+          }
         },
         onMove: (event) => {
-          if (typeof options.onMove === 'function') {
-            options.onMove(event)
-          }
           const params = { data: this.data, event }
           this.$emit('row-drag-move', params)
+          if (Utils.getPrototype(options.onMove) === 'function') {
+            options.onMove(event)
+          }
         },
         onEnd: (event) => {
-          if (typeof options.onEnd === 'function') {
-            options.onEnd(event)
-          }
           const { newIndex, oldIndex } = event
           const row = this.data.splice(oldIndex, 1)[0]
           const params = { data: this.data, row, event }
           Object.setPrototypeOf(params, { item: row })
           this.data.splice(newIndex, 0, row)
           this.$emit('row-drag-end', params)
+          if (Utils.getPrototype(options.onEnd) === 'function') {
+            options.onEnd(event)
+          }
         }
       })
     },
