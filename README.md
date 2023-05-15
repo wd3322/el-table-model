@@ -849,3 +849,11 @@ export default {
 | :-------              | :-------     | :-------            | :------  |
 | cell-editable-focus   | Event        | Function            | False    |
 | cell-editable-change  | Event        | Function            | False    |
+
+----
+
+Package: el-table-model
+
+E-mail: diquick@qq.com
+
+Author: wd3322
