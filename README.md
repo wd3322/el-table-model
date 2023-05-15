@@ -6,16 +6,16 @@
 
 [Gitee](https://gitee.com/wd3322/el-table-model)
 
-![el-table-model](https://wd3322.github.io/to-vue3/img/el-table-model/table-demo.png)
+![el-table-model](https://wd3322.gitee.io/to-vue3/img/el-table-model/table-demo.png)
 
 ### 渲染
-![base](https://wd3322.github.io/to-vue3/img/el-table-model/table-base.gif)
+![base](https://wd3322.gitee.io/to-vue3/img/el-table-model/table-base.gif)
 
 ### 可编辑
-![editable](https://wd3322.github.io/to-vue3/img/el-table-model/table-editable.gif)
+![editable](https://wd3322.gitee.io/to-vue3/img/el-table-model/table-editable.gif)
 
 ### 可拖动
-![draggable](https://wd3322.github.io/to-vue3/img/el-table-model/table-draggable.gif)
+![draggable](https://wd3322.gitee.io/to-vue3/img/el-table-model/table-draggable.gif)
 
 ---
 
