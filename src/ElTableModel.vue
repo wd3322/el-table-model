@@ -72,66 +72,10 @@
 
                 <!-- editable type -->
                 <div v-else-if="column.type === 'editable'">
-                  <!-- form-item -->
-                  <span v-if="currentEditable === column.prop + scope.$index || scope.row.$isEditable || validateProp[`list.${scope.$index}.${column.prop}`] === false">
-                    <el-form-item
-                      :prop="`list.${scope.$index}.${column.prop}`"
-                      :rules="column.form.rules"
-                      :row-index="scope.$index"
-                    >
-                      <!-- component-item -->
-                      <span @click.stop>
-                        <component
-                          :is="{
-                            input: 'el-input',
-                            autocomplete: 'el-autocomplete',
-                            count: 'el-input-number',
-                            select: 'el-select',
-                            cascader: 'el-cascader',
-                            time: 'el-time-picker',
-                            date: 'el-date-picker',
-                            dates: 'el-date-picker',
-                            datetime: 'el-date-picker',
-                            month: 'el-date-picker',
-                            year: 'el-date-picker'
-                          }[column.form.type]"
-                          ref="editable"
-                          class="el-editable-form"
-                          :style="{ width: column.form.width }"
-                          v-model.trim="scope.row[column.prop]"
-                          v-bind="getAttrs('form-item', column, scope)"
-                          v-on="column.form.events"
-                          @change="onChangeEditable(scope.row, scope.column, scope.row[column.prop], scope.$index, column.prop)"
-                          @select="onChangeEditable(scope.row, scope.column, scope.row[column.prop], scope.$index, column.prop)"
-                        >
-                          <template v-if="column.form.type === 'select' && column.form.options">
-                            <el-option
-                              v-for="(option, optionsIndex) in column.form.options"
-                              :key="optionsIndex"
-                              v-bind="option"
-                            >
-                              <span v-if="option.type === 'slot'">
-                                <slot
-                                  :name="option.label"
-                                  :label="option.label"
-                                  :value="option.value"
-                                />
-                              </span>
-                              <span v-else>{{ option.label }}</span>
-                            </el-option>
-                          </template>
-                        </component>
-                      </span>
-                    </el-form-item>
-                  </span>
-                  <!-- text-item -->
-                  <span
-                    v-else
-                    :class="getEditable('state', column, scope) ? 'editable-text' : 'uneditable-text'"
-                    @click.stop="onFocusEditable(scope.row, scope.column, scope.row[column.prop], scope.$index, column.prop)"
-                  >
-                    {{ getEditable('value', column, scope) }}
-                  </span>
+                  <el-table-model-form-item
+                    :column="column"
+                    :scope="scope"
+                  />
                 </div>
 
               </template>
@@ -188,11 +132,13 @@
 import { debounce } from 'debounce'
 import Utils from './utils.js'
 import ElTableModelColumn from './components/ElTableModelColumn.vue'
+import ElTableModelFormItem from './components/ElTableModelFormItem.vue'
 
 export default {
   name: 'ElTableModel',
   components: {
-    ElTableModelColumn
+    ElTableModelColumn,
+    ElTableModelFormItem
   },
   props: {
     queryApi: {
@@ -228,7 +174,6 @@ export default {
       pageSize: 0,
       currentPage: 1,
       total: 0,
-      currentEditable: '',
       validateProp: {},
       getDataFunc: debounce(this.getData, 200)
     }
@@ -297,10 +242,6 @@ export default {
       const params = this.rowDragSort({ ref: this.$refs.table })
       this.onSortable(params)
     }
-    document.addEventListener('click', this.clearEditable)
-  },
-  destroyed() {
-    document.removeEventListener('click', this.clearEditable)
   },
   methods: {
     getAttrs(type, column, scope) {
@@ -332,33 +273,6 @@ export default {
           delete result.form
         }
         delete result.hidden
-      } else if (type === 'form-item') {
-        const appendProps = []
-        const excludeProps = []
-        result = {
-          size: 'mini',
-          placeholder: column.label || '',
-          ...column.form
-        }
-        if (['count', 'select', 'cascader', 'time'].includes(column.form.type)) {
-          appendProps.push('type')
-        }
-        if (['select'].includes(column.form.type)) {
-          appendProps.push('options')
-        }
-        if (['cascader'].includes(column.form.type)) {
-          result.props = column.form.props
-          excludeProps.push('props')
-        }
-        if (!this.getEditable('state', column, scope)) {
-          result.disabled = true
-        }
-        const props = ['width', 'rules', 'events', ...appendProps]
-        for (const prop of props) {
-          if (result.hasOwnProperty(prop) && !excludeProps.includes(prop)) {
-            delete result[prop]
-          }
-        }
       } else if (type === 'pagination') {
         result = {
           layout: 'total, sizes, prev, pager, next, jumper',
@@ -382,7 +296,7 @@ export default {
       if (
         Utils.getPrototype(queryPage) !== 'boolean' ||
         Utils.getPrototype(queryParams) !== 'object' ||
-        Utils.getPrototype(queryMethod).indexOf('function') !== -1
+        Utils.getPrototype(queryMethod).indexOf('function') === -1
       ) {
         return
       }
@@ -407,7 +321,6 @@ export default {
           this.total = result.total
         }
         this.loading = false
-        this.currentEditable = null
       }
       queryMethod(queryParams, queryCallback)
     },
@@ -415,50 +328,6 @@ export default {
       return !this.loading
         ? ++index + (this.pageSize || this.getAttrs('pagination').pageSizes[0]) * (this.currentPage - 1)
         : ''
-    },
-    getEditable(type, column, scope) {
-      if (type === 'state') {
-        return Utils.getPrototype(column.editable).indexOf('function') !== -1
-          ? column.editable(scope.row, scope.column, scope.row[column.prop], scope.$index)
-          : true
-      } else if (type === 'value') {
-        return Utils.getPrototype(column.formatter).indexOf('function') !== -1
-          ? column.formatter(scope.row, scope.column, scope.row[column.prop], scope.$index)
-          : scope.row[column.prop]
-      }
-    },
-    clearEditable() {
-      this.currentEditable = null
-    },
-    onFocusEditable(row, column, value, index, prop) {
-      this.currentEditable = prop + index
-      this.$nextTick(() => {
-        if (this.$refs.editable && this.$refs.editable.length > 0) {
-          const el = this.$refs.editable[this.$refs.editable.length - 1]
-          if (el) {
-            el.focus && el.focus()
-            const params = { data: this.data, column, row, value, index, prop, el: el.$el }
-            Object.setPrototypeOf(params, { item: row })
-            this.$emit('cell-editable-focus', params)
-          }
-        }
-      })
-    },
-    onChangeEditable(row, column, value, index, prop) {
-      setTimeout(() => {
-        const valid = this.validateProp[`list.${index}.${prop}`]
-        const params = { data: this.data, column, row, value, index, prop, valid }
-        Object.setPrototypeOf(params, { item: row })
-        this.$emit('cell-editable-change', params)
-      })
-    },
-    onSetEditable(type, val) {
-      if (type === 'create') {
-        this.data.push({ ...val, $isEditable: true })
-        this.currentEditable = null
-      } else if (type === 'cancel') {
-        this.data.splice(val, 1)
-      }
     },
     onValidateForm(prop, valid) {
       this.$set(this.validateProp, prop, valid)
