@@ -46,7 +46,7 @@
 import Utils from '../utils.js'
 
 export default {
-  name: 'ElTableModelColumn',
+  name: 'ElTableModelFormItem',
   props: {
     column: {
       type: Object,
