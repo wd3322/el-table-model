@@ -1,5 +1,7 @@
 <template>
   <div class="table-model-wrap">
+
+    <!-- table component -->
     <div class="table-model-content">
       <el-form
         ref="form"
@@ -10,80 +12,32 @@
           ref="table"
           v-loading="loading"
           :data="data"
-          :class="{'drag-sort': rowDragSort}"
+          :class="{ 'drag-sort': rowDragSort }"
           v-bind="getAttrs('table')"
           v-on="$listeners"
         >
-          <template v-for="(column, index) in columns.filter(column => !column.hidden)">
 
-            <el-table-column
-              :key="(column.prop || column.type) + index"
-              v-bind="getAttrs('table-column', column)"
+          <!-- table column -->
+          <el-table-model-column
+            v-for="(column, index) in columns.filter(column => !column.hidden)"
+            :key="(column.prop || column.type || column.label) + index"
+            :column="column"
+            :index="index"
+            :editable-key="editableKey"
+            :get-attrs="getAttrs"
+          >
+            <template
+              v-for="(value, name) in $scopedSlots"
+              v-slot:[name]="params"
             >
+              <slot
+                :name="name"
+                v-bind="params"
+              />
+            </template>
+          </el-table-model-column>
 
-              <!-- header slot -->
-              <template v-slot:header="scope">
-                <slot
-                  v-if="column.headerSlot"
-                  :name="column.headerSlot"
-                  :index="scope.$index"
-                  :column="scope.column"
-                />
-                <span v-else>{{ scope.column.label }}</span>
-              </template>
-
-              <!-- body slot -->
-              <template v-slot="scope" v-if="['render', 'slot', 'expand', 'editable'].includes(column.type)">
-
-                <!-- render type -->
-                <el-table-model-column
-                  v-if="column.type === 'render'"
-                  :render-content="column.renderContent"
-                  :row="scope.row"
-                  :column="scope.column"
-                  :index="scope.$index"
-                  :value="scope.row[column.prop]"
-                />
-
-                <!-- slot type -->
-                <slot
-                  v-else-if="column.type === 'slot'"
-                  :name="column.defaultSlot || column.prop"
-                  :item="scope.row"
-                  :row="scope.row"
-                  :column="scope.column"
-                  :index="scope.$index"
-                  :value="scope.row[column.prop]"
-                  :format="typeof column.formatter === 'function' ? column.formatter(scope.row, scope.column, scope.row[column.prop], scope.$index) : null"
-                  :refs="{
-                    form: $refs.form,
-                    table: $refs.table
-                  }"
-                />
-
-                <!-- expand type -->
-                <slot
-                  v-else-if="column.type === 'expand'"
-                  name="expand"
-                  :index="scope.$index"
-                  :row="scope.row"
-                  :column="scope.column"
-                />
-
-                <!-- editable type -->
-                <div v-else-if="column.type === 'editable'">
-                  <el-table-model-form-item
-                    :column="column"
-                    :scope="scope"
-                  />
-                </div>
-
-              </template>
-
-            </el-table-column>
-
-          </template>
-
+          <!-- append slot -->
           <template v-slot:append>
             <slot
               v-if="$scopedSlots.append"
@@ -99,6 +53,7 @@
       </el-form>
     </div>
 
+    <!-- between slot -->
     <div
       v-if="$scopedSlots.between"
       class="table-model-between"
@@ -112,6 +67,7 @@
       />
     </div>
 
+    <!-- pagination component -->
     <div
       v-if="hasData && queryApi.page"
       class="table-model-pagination"
@@ -125,6 +81,7 @@
         @current-change="onSetPage('current', $event)"
       />
     </div>
+
   </div>
 </template>
 
@@ -132,13 +89,11 @@
 import { debounce } from 'debounce'
 import Utils from './utils.js'
 import ElTableModelColumn from './components/ElTableModelColumn.vue'
-import ElTableModelFormItem from './components/ElTableModelFormItem.vue'
 
 export default {
   name: 'ElTableModel',
   components: {
-    ElTableModelColumn,
-    ElTableModelFormItem
+    ElTableModelColumn
   },
   props: {
     queryApi: {
@@ -175,6 +130,7 @@ export default {
       currentPage: 1,
       total: 0,
       validateProp: {},
+      editableKey: '',
       getDataFunc: debounce(this.getData, 200)
     }
   },
@@ -244,7 +200,12 @@ export default {
     }
   },
   methods: {
-    getAttrs(type, column, scope) {
+    getIndex(index) {
+      return !this.loading
+        ? ++index + (this.pageSize || this.getAttrs('pagination').pageSizes[0]) * (this.currentPage - 1)
+        : ''
+    },
+    getAttrs(type, options) {
       let result = {}
       if (type === 'table') {
         result = {
@@ -256,23 +217,23 @@ export default {
           ...this.$attrs
         }
       } else if (type === 'table-column') {
+        const { column } = options
         result = {
           ...(
             Utils.getPrototype(this.defaultAttrs.component.tableColumn).indexOf('function') !== -1
               ? this.defaultAttrs.component.tableColumn(this, column)
               : this.defaultAttrs.component.tableColumn
           ),
+          index: column.type === 'index' ? this.getIndex : null,
           ...column
         }
-        if (column.type === 'index') {
-          result.index = this.getIndex
-        } else if (column.type === 'slot') {
-          delete result.type
-        } else if (column.type === 'editable') {
-          delete result.type
-          delete result.form
+      } else if (type === 'editable-form') {
+        const { column, form } = options
+        result = {
+          size: 'mini',
+          placeholder: column.label || '',
+          ...form
         }
-        delete result.hidden
       } else if (type === 'pagination') {
         result = {
           layout: 'total, sizes, prev, pager, next, jumper',
@@ -321,13 +282,9 @@ export default {
           this.total = result.total
         }
         this.loading = false
+        this.editableKey = `editable-key-${+new Date()}`
       }
       queryMethod(queryParams, queryCallback)
-    },
-    getIndex(index) {
-      return !this.loading
-        ? ++index + (this.pageSize || this.getAttrs('pagination').pageSizes[0]) * (this.currentPage - 1)
-        : ''
     },
     onValidateForm(prop, valid) {
       this.$set(this.validateProp, prop, valid)

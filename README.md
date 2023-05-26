@@ -622,7 +622,7 @@ export default {
         label: '输入框',
         prop: 'myInput',
         type: 'editable',
-        form: (row, column, value, index) => {
+        editableForm: (row, column, value, index) => {
           return {
             type: 'input', // input,autocomplete,count,select,cascader,time,date,dates,datetime,month,year
             maxlength: 50,
@@ -641,7 +641,7 @@ export default {
         label: '下拉框',
         prop: 'mySelect',
         type: 'editable',
-        form: (row, column, value, index) => {
+        editableForm: (row, column, value, index) => {
           return {
             type: 'select',
             width: '100%',
