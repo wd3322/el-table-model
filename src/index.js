@@ -1,5 +1,5 @@
 import Utils from './utils.js'
-import ElTableModel from './ElTableModel.vue'
+import ElTableModel from './main.vue'
 import DefaultAttrs from './attrs'
 import './index.scss'
 

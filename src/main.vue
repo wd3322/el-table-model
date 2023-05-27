@@ -88,7 +88,7 @@
 <script>
 import { debounce } from 'debounce'
 import Utils from './utils.js'
-import ElTableModelColumn from './components/ElTableModelColumn.vue'
+import ElTableModelColumn from './components/column.vue'
 
 export default {
   name: 'ElTableModel',

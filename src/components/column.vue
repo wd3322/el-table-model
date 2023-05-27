@@ -93,8 +93,8 @@
 </template>
 
 <script>
-import ElTableModelColumnRender from './ElTableModelColumnRender.vue'
-import ElTableModelColumnEditable from './ElTableModelColumnEditable.vue'
+import ElTableModelColumnRender from './column-render.vue'
+import ElTableModelColumnEditable from './column-editable.vue'
 
 export default {
   name: 'ElTableModelColumn',
