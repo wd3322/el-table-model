@@ -3,7 +3,7 @@ import ElTableModel from './main.vue'
 import DefaultAttrs from './attrs'
 import './index.scss'
 
-const Loading = {
+export default {
   install(Vue, attrs = {}) {
     const errorHeader = 'el-table-model install config'
     if (Utils.getPrototype(attrs) !== 'object') {
@@ -41,5 +41,3 @@ const Loading = {
     Vue.component('el-table-model', ElTableModel)
   }
 }
-
-export default Loading

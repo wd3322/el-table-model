@@ -1,22 +1,31 @@
 {
   "name": "el-table-model",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "description": "vue element table to json",
   "main": "lib/index.js",
+  "typings": "src/index.d.ts",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "keywords": [
+    "vue",
+    "element",
+    "table",
+    "table-model",
+    "el-table-model"
+  ],
+  "homepage": "https://wd3322.gitee.io/el-model",
   "repository": {
     "type": "git",
     "url": "https://github.com/wd3322/el-table-model"
   },
+  "author": "wd",
+  "license": "MIT",
   "scripts": {
     "clean": "npx rimraf node_modules",
     "build": "webpack --config webpack.config.js"
   },
-  "keywords": [
-    "vue element table to json",
-    "vue element table to object"
-  ],
-  "author": "wd",
-  "license": "ISC",
   "dependencies": {
     "core-js": "^3.16.0",
     "debounce": "^1.2.1",
