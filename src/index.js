@@ -4,7 +4,7 @@ import DefaultAttrs from './attrs'
 import './style.scss'
 
 export default {
-  install(Vue) {
+  install(Vue, attrs) {
     if (attrs) {
       const errorHeader = 'el-table-model install config'
       if (Utils.getPrototype(attrs) !== 'object') {

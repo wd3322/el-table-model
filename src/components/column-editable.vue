@@ -60,7 +60,7 @@ export default {
     getAttrs: {
       type: Function,
       required: true,
-      default: () => {}
+      default: () => ({})
     }
   },
   data() {

@@ -38,7 +38,7 @@
     </template>
 
     <!-- body slot -->
-    <template 
+    <template
       v-if="!column.children && ['render', 'slot', 'expand', 'editable'].includes(column.type)"
       v-slot="scope"
     >
@@ -68,7 +68,7 @@
           table: $refs.table
         }"
       />
-      
+
       <!-- expand type -->
       <slot
         v-else-if="column.type === 'expand'"
@@ -121,7 +121,7 @@ export default {
     getAttrs: {
       type: Function,
       required: true,
-      default: () => {}
+      default: () => ({})
     }
   }
 }
