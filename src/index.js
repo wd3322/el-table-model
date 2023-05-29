@@ -1,7 +1,7 @@
 import Utils from './utils.js'
 import ElTableModel from './main.vue'
 import DefaultAttrs from './attrs'
-import './index.scss'
+import './style.scss'
 
 export default {
   install(Vue, attrs = {}) {
