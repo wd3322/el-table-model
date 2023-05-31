@@ -9,6 +9,13 @@
       <component
         :is="{
           input: 'el-input',
+          number: 'el-input',
+          password: 'el-input',
+          tel: 'el-input',
+          email: 'el-input',
+          url: 'el-input',
+          search: 'el-input',
+          textarea: 'el-input',
           autocomplete: 'el-autocomplete',
           count: 'el-input-number',
           select: 'el-select',
@@ -18,23 +25,41 @@
           dates: 'el-date-picker',
           datetime: 'el-date-picker',
           month: 'el-date-picker',
-          year: 'el-date-picker'
+          year: 'el-date-picker',
+          daterange: 'el-date-picker',
+          datetimerange: 'el-date-picker',
+          monthrange: 'el-date-picker',
+          radio: 'el-radio-group',
+          checkbox: 'el-checkbox-group',
+          switch: 'el-switch',
+          slider: 'el-slider',
+          rate: 'el-rate',
+          color: 'el-color-picker'
         }[form.type]"
         ref="editable"
         class="el-editable-form"
         :style="{ width: form.width }"
-        v-model.trim="scope.row[column.prop]"
+        v-model="scope.row[column.prop]"
         v-bind="getAttrs('editable-form', { column, scope, form })"
         v-on="form.events"
       >
-        <template v-if="form.type === 'select' && form.options">
-          <el-option
-            v-for="(option, optionsIndex) in form.options"
-            :key="optionsIndex"
-            v-bind="option"
+        <template v-if="['select', 'radio', 'checkbox'].includes(form.type) && form.options">
+          <component
+            :is="{
+              select: 'el-option',
+              radio: 'el-radio',
+              checkbox: 'el-checkbox'
+            }[form.type]"
+            v-for="(option, optionsIndex) in form.options.filter(item => !item.hidden)"
+            :key="column.prop + option.value + optionsIndex"
+            v-bind="{
+              ...option,
+              label: form.type === 'select' ? option.label : option.value,
+              value: form.type === 'select' ? option.value : null
+            }"
           >
             <span>{{ option.label }}</span>
-          </el-option>
+          </component>
         </template>
       </component>
     </span>
