@@ -58,7 +58,7 @@
               value: form.type === 'select' ? option.value : null
             }"
           >
-            <span>{{ option.label }}</span>
+            {{ option.label }}
           </component>
         </template>
       </component>

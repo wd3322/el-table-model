@@ -20,9 +20,10 @@
           <!-- table column -->
           <el-table-model-column
             v-for="(column, index) in columns.filter(column => !column.hidden)"
-            :key="column.id"
+            :key="`${(column.prop || column.type || 'column')}.${index}.0`"
             :column="column"
             :index="index"
+            :level="1"
             :editable-key="editableKey"
             :get-attrs="getAttrs"
           >
@@ -140,11 +141,6 @@ export default {
         list: this.data
       }
     },
-    attrsChange() {
-      return {
-        columns: this.columns
-      }
-    },
     apiChange() {
       return {
         ...this.queryApi,
@@ -157,13 +153,6 @@ export default {
     }
   },
   watch: {
-    attrsChange: {
-      handler(nVal) {
-        this.setAttrs()
-      },
-      immediate: true,
-      deep: true
-    },
     apiChange: {
       handler(nVal, oVal) {
         const { page: queryPage } = this.queryApi
@@ -281,13 +270,6 @@ export default {
         }
       }
       return result
-    },
-    setAttrs() {
-      for (const column of this.columns) {
-        if (!column.id) {
-          column.id = (column.prop || column.type || 'column') + '.' + URL.createObjectURL(new Blob()).substr(-36)
-        }
-      }
     },
     async getData() {
       this.loading = true

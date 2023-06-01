@@ -5,9 +5,10 @@
     <template v-if="column.children">
       <el-table-model-column
         v-for="(column, index) in column.children.filter(column => !column.hidden)"
-        :key="column.id"
+        :key="`${(column.prop || column.type || 'column')}.${index}.${level}`"
         :column="column"
         :index="index"
+        :level="level + 1"
         :editable-key="editableKey"
         :get-attrs="getAttrs"
       >
@@ -25,19 +26,17 @@
 
     <!-- header slot -->
     <template
-      v-if="!column.children"
+      v-if="!column.children && column.headerSlot"
       v-slot:header="scope"
     >
       <slot
-        v-if="column.headerSlot"
         :name="column.headerSlot"
         :index="scope.$index"
         :column="scope.column"
       />
-      <span v-else>{{ scope.column.label }}</span>
     </template>
 
-    <!-- body slot -->
+    <!-- content slot -->
     <template
       v-if="!column.children && ['render', 'slot', 'expand', 'editable'].includes(column.type)"
       v-slot="scope"
@@ -109,6 +108,11 @@ export default {
       default: () => ({})
     },
     index: {
+      type: Number,
+      required: true,
+      default: 0
+    },
+    level: {
       type: Number,
       required: true,
       default: 0
