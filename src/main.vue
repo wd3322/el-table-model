@@ -20,7 +20,7 @@
           <!-- table column -->
           <el-table-model-column
             v-for="(column, index) in columns.filter(column => !column.hidden)"
-            :key="(column.prop || column.type || column.label) + index"
+            :key="column.id"
             :column="column"
             :index="index"
             :editable-key="editableKey"
@@ -77,8 +77,8 @@
         :current-page="currentPage"
         :total="total"
         v-bind="getAttrs('pagination')"
-        @size-change="onSetPage('size', $event)"
-        @current-change="onSetPage('current', $event)"
+        @size-change="onTurnPage('size', $event)"
+        @current-change="onTurnPage('current', $event)"
       />
     </div>
 
@@ -140,6 +140,11 @@ export default {
         list: this.data
       }
     },
+    attrsChange() {
+      return {
+        columns: this.columns
+      }
+    },
     apiChange() {
       return {
         ...this.queryApi,
@@ -152,6 +157,13 @@ export default {
     }
   },
   watch: {
+    attrsChange: {
+      handler(nVal) {
+        this.setAttrs()
+      },
+      immediate: true,
+      deep: true
+    },
     apiChange: {
       handler(nVal, oVal) {
         const { page: queryPage } = this.queryApi
@@ -225,14 +237,37 @@ export default {
               : this.defaultAttrs.component.tableColumn
           ),
           index: column.type === 'index' ? this.getIndex : null,
-          ...column
+          ...Utils.resetPropertys({
+            obj: column,
+            type: 'exclude',
+            keys: (() => {
+              const keys = ['hidden', 'children', 'defaultSlot', 'editableForm', 'renderContent']
+              if (['slot', 'render', 'editable'].includes(column.type)) {
+                keys.push('type')
+              }
+              return keys
+            })()
+          })
         }
       } else if (type === 'editable-form') {
         const { column, form } = options
         result = {
           size: 'mini',
           placeholder: column.label || '',
-          ...form
+          ...Utils.resetPropertys({
+            obj: form,
+            type: 'exclude',
+            keys: (() => {
+              const keys = ['width', 'rules', 'events']
+              if (['count', 'select', 'cascader', 'time', 'radio', 'checkbox', 'switch', 'slider', 'rate', 'color'].includes(form.type)) {
+                keys.push('type')
+              }
+              if (['select', 'radio', 'checkbox'].includes(form.type)) {
+                keys.push('options')
+              }
+              return keys
+            })()
+          })
         }
       } else if (type === 'pagination') {
         result = {
@@ -246,6 +281,13 @@ export default {
         }
       }
       return result
+    },
+    setAttrs() {
+      for (const column of this.columns) {
+        if (!column.id) {
+          column.id = (column.prop || column.type || 'column') + '.' + URL.createObjectURL(new Blob()).substr(-36)
+        }
+      }
     },
     async getData() {
       this.loading = true
@@ -282,14 +324,14 @@ export default {
           this.total = result.total
         }
         this.loading = false
-        this.editableKey = `editable-key-${+new Date()}`
+        this.editableKey = `editable.key.${+new Date()}`
       }
       queryMethod(queryParams, queryCallback)
     },
     onValidateForm(prop, valid) {
       this.$set(this.validateProp, prop, valid)
     },
-    onSetPage(type, val) {
+    onTurnPage(type, val) {
       if (type === 'size') {
         this.pageSize = val
       } else if (type === 'current') {

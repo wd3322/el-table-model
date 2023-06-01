@@ -5,7 +5,7 @@
     <template v-if="column.children">
       <el-table-model-column
         v-for="(column, index) in column.children.filter(column => !column.hidden)"
-        :key="(column.prop || column.type || column.label) + index"
+        :key="column.id"
         :column="column"
         :index="index"
         :editable-key="editableKey"

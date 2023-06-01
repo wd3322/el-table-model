@@ -50,8 +50,8 @@
               radio: 'el-radio',
               checkbox: 'el-checkbox'
             }[form.type]"
-            v-for="(option, optionsIndex) in form.options.filter(item => !item.hidden)"
-            :key="column.prop + option.value + optionsIndex"
+            v-for="(option, optionIndex) in form.options.filter(item => !item.hidden)"
+            :key="`list.${scope.$index}.${column.prop}.${option.value}.${optionIndex}`"
             v-bind="{
               ...option,
               label: form.type === 'select' ? option.label : option.value,
