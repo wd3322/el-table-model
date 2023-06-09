@@ -50,6 +50,18 @@
             />
           </template>
 
+          <!-- empty slot -->
+          <template v-slot:empty>
+            <slot
+              v-if="$scopedSlots.empty"
+              name="empty"
+              :refs="{
+                form: $refs.form,
+                table: $refs.table
+              }"
+            />
+          </template>
+
         </el-table>
       </el-form>
     </div>
