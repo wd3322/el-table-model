@@ -1,5 +1,5 @@
 <template>
-  <div class="table-model-wrap">
+  <div class="table-model-wrap" v-loading="loading">
 
     <!-- table component -->
     <div class="table-model-content">
@@ -10,7 +10,6 @@
       >
         <el-table
           ref="table"
-          v-loading="loading"
           :data="data"
           :class="{ 'drag-sort': rowDragSort }"
           v-bind="getAttrs('table')"
