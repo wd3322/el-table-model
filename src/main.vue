@@ -98,6 +98,24 @@
 </template>
 
 <script>
+import {
+  Table as ElTable,
+  TableColumn as ElTableColumn,
+  Pagination as ElPagination,
+  Input as ElInput,
+  Autocomplete as ElAutocomplete,
+  InputNumber as ElInputNumber,
+  Select as ElSelect,
+  Cascader as ElCascader,
+  TimePicker as ElTimePicker,
+  DatePicker as ElDatePicker,
+  RadioGroup as ElRadioGroup,
+  CheckboxGroup as ElCheckboxGroup,
+  Switch as ElSwitch,
+  Slider as ElSlider,
+  Rate as ElRate,
+  ColorPicker as ElColorPicker
+} from 'element-ui'
 import { debounce } from 'debounce'
 import Utils from './utils.js'
 import ElTableModelColumn from './components/column.vue'
@@ -226,7 +244,7 @@ export default {
               ? this.defaultAttrs.component.table(this)
               : this.defaultAttrs.component.table
           ),
-          ...this.$attrs
+          ...Utils.resetPropertys(this.$attrs, ElTable)
         }
       } else if (type === 'table-column') {
         const { column } = options
@@ -237,37 +255,43 @@ export default {
               : this.defaultAttrs.component.tableColumn
           ),
           index: column.type === 'index' ? this.getIndex : null,
-          ...Utils.resetPropertys({
-            obj: column,
-            type: 'exclude',
-            keys: (() => {
-              const keys = ['hidden', 'children', 'defaultSlot', 'editableForm', 'renderContent']
-              if (['slot', 'render', 'editable'].includes(column.type)) {
-                keys.push('type')
-              }
-              return keys
-            })()
-          })
+          ...Utils.resetPropertys(column, ElTableColumn)
         }
       } else if (type === 'editable-form') {
         const { column, form } = options
         result = {
           size: 'mini',
           placeholder: column.label || '',
-          ...Utils.resetPropertys({
-            obj: form,
-            type: 'exclude',
-            keys: (() => {
-              const keys = ['width', 'rules', 'events']
-              if (['count', 'select', 'cascader', 'time', 'radio', 'checkbox', 'switch', 'slider', 'rate', 'color'].includes(form.type)) {
-                keys.push('type')
-              }
-              if (['select', 'radio', 'checkbox'].includes(form.type)) {
-                keys.push('options')
-              }
-              return keys
-            })()
-          })
+          ...Utils.resetPropertys(form, {
+            input: ElInput,
+            text: ElInput,
+            number: ElInput,
+            password: ElInput,
+            tel: ElInput,
+            email: ElInput,
+            url: ElInput,
+            search: ElInput,
+            textarea: ElInput,
+            autocomplete: ElAutocomplete,
+            count: ElInputNumber,
+            select: ElSelect,
+            cascader: ElCascader,
+            time: ElTimePicker,
+            date: ElDatePicker,
+            dates: ElDatePicker,
+            datetime: ElDatePicker,
+            month: ElDatePicker,
+            year: ElDatePicker,
+            daterange: ElDatePicker,
+            datetimerange: ElDatePicker,
+            monthrange: ElDatePicker,
+            radio: ElRadioGroup,
+            checkbox: ElCheckboxGroup,
+            switch: ElSwitch,
+            slider: ElSlider,
+            rate: ElRate,
+            color: ElColorPicker
+          }[form.type])
         }
       } else if (type === 'pagination') {
         result = {
@@ -277,7 +301,7 @@ export default {
               ? this.defaultAttrs.component.pagination(this)
               : this.defaultAttrs.component.pagination
           ),
-          ...this.pagination
+          ...Utils.resetPropertys(this.pagination, ElPagination)
         }
       }
       return result

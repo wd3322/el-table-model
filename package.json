@@ -1,6 +1,6 @@
 {
   "name": "el-table-model",
-  "version": "1.6.9",
+  "version": "1.6.10",
   "description": "vue element table to json",
   "main": "lib/index.js",
   "typings": "src/index.d.ts",
@@ -29,6 +29,7 @@
   "dependencies": {
     "core-js": "^3.16.0",
     "debounce": "^1.2.1",
+    "element-ui": "^2.15.14",
     "sortablejs": "^1.15.0",
     "vue": "^2.7.14",
     "vue-template-compiler": "^2.7.14"
