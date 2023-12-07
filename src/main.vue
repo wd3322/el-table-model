@@ -98,24 +98,6 @@
 </template>
 
 <script>
-import {
-  Table as ElTable,
-  TableColumn as ElTableColumn,
-  Pagination as ElPagination,
-  Input as ElInput,
-  Autocomplete as ElAutocomplete,
-  InputNumber as ElInputNumber,
-  Select as ElSelect,
-  Cascader as ElCascader,
-  TimePicker as ElTimePicker,
-  DatePicker as ElDatePicker,
-  RadioGroup as ElRadioGroup,
-  CheckboxGroup as ElCheckboxGroup,
-  Switch as ElSwitch,
-  Slider as ElSlider,
-  Rate as ElRate,
-  ColorPicker as ElColorPicker
-} from 'element-ui'
 import { debounce } from 'debounce'
 import Utils from './utils.js'
 import ElTableModelColumn from './components/column.vue'
@@ -200,20 +182,18 @@ export default {
       deep: true
     }
   },
-  beforeCreate() {
+  created() {
     for (const prop of ['maxlength', 'minlength', 'autocomplete', 'name', 'readonly', 'max', 'min', 'step', 'autofocus', 'form']) {
-      if (!ElInput.props[prop]) ElInput.props[prop] = {}
-      if (!ElAutocomplete.props[prop]) ElAutocomplete.props[prop] = {}
+      this.defaultAttrs.ui.Input.props[prop] = this.defaultAttrs.ui.Input.props[prop] || {}
+      this.defaultAttrs.ui.Autocomplete.props[prop] = this.defaultAttrs.ui.Autocomplete.props[prop] || {}
       if (prop === 'name') {
-        if (!ElInputNumber.props[prop]) ElInputNumber.props[prop] = {}
-        if (!ElTimePicker.props[prop]) ElTimePicker.props[prop] = {}
-        if (!ElDatePicker.props[prop]) ElDatePicker.props[prop] = {}
-        if (!ElCheckboxGroup.props[prop]) ElCheckboxGroup.props[prop] = {}
-        if (!ElRadioGroup.props[prop]) ElRadioGroup.props[prop] = {}
+        this.defaultAttrs.ui.InputNumber.props[prop] = this.defaultAttrs.ui.InputNumber.props[prop] || {}
+        this.defaultAttrs.ui.TimePicker.props[prop] = this.defaultAttrs.ui.TimePicker.props[prop] || {}
+        this.defaultAttrs.ui.DatePicker.props[prop] = this.defaultAttrs.ui.DatePicker.props[prop] || {}
+        this.defaultAttrs.ui.CheckboxGroup.props[prop] = this.defaultAttrs.ui.CheckboxGroup.props[prop] || {}
+        this.defaultAttrs.ui.RadioGroup.props[prop] = this.defaultAttrs.ui.RadioGroup.props[prop] || {}
       }
     }
-  },
-  created() {
     const { immediate: queryImmediate } = this.queryApi
     if (queryImmediate === true) {
       this.loading = true
@@ -257,7 +237,7 @@ export default {
               ? this.defaultAttrs.component.table(this)
               : this.defaultAttrs.component.table
           ),
-          ...Utils.resetPropertys(this.$attrs, ElTable)
+          ...Utils.resetPropertys(this.$attrs, this.defaultAttrs.ui.Table)
         }
       } else if (type === 'table-column') {
         const { column } = options
@@ -268,7 +248,7 @@ export default {
               : this.defaultAttrs.component.tableColumn
           ),
           index: column.type === 'index' ? this.getIndex : null,
-          ...Utils.resetPropertys(column, ElTableColumn)
+          ...Utils.resetPropertys(column, this.defaultAttrs.ui.TableColumn)
         }
       } else if (type === 'editable-form') {
         const { column, form } = options
@@ -276,34 +256,34 @@ export default {
           size: 'mini',
           placeholder: column.label || '',
           ...Utils.resetPropertys(form, {
-            input: ElInput,
-            text: ElInput,
-            number: ElInput,
-            password: ElInput,
-            tel: ElInput,
-            email: ElInput,
-            url: ElInput,
-            search: ElInput,
-            textarea: ElInput,
-            autocomplete: ElAutocomplete,
-            count: ElInputNumber,
-            select: ElSelect,
-            cascader: ElCascader,
-            time: ElTimePicker,
-            date: ElDatePicker,
-            dates: ElDatePicker,
-            datetime: ElDatePicker,
-            month: ElDatePicker,
-            year: ElDatePicker,
-            daterange: ElDatePicker,
-            datetimerange: ElDatePicker,
-            monthrange: ElDatePicker,
-            radio: ElRadioGroup,
-            checkbox: ElCheckboxGroup,
-            switch: ElSwitch,
-            slider: ElSlider,
-            rate: ElRate,
-            color: ElColorPicker
+            input: this.defaultAttrs.ui.Input,
+            text: this.defaultAttrs.ui.Input,
+            number: this.defaultAttrs.ui.Input,
+            password: this.defaultAttrs.ui.Input,
+            tel: this.defaultAttrs.ui.Input,
+            email: this.defaultAttrs.ui.Input,
+            url: this.defaultAttrs.ui.Input,
+            search: this.defaultAttrs.ui.Input,
+            textarea: this.defaultAttrs.ui.Input,
+            autocomplete: this.defaultAttrs.ui.Autocomplete,
+            count: this.defaultAttrs.ui.InputNumber,
+            select: this.defaultAttrs.ui.Select,
+            cascader: this.defaultAttrs.ui.Cascader,
+            time: this.defaultAttrs.ui.TimePicker,
+            date: this.defaultAttrs.ui.DatePicker,
+            dates: this.defaultAttrs.ui.DatePicker,
+            datetime: this.defaultAttrs.ui.DatePicker,
+            month: this.defaultAttrs.ui.DatePicker,
+            year: this.defaultAttrs.ui.DatePicker,
+            daterange: this.defaultAttrs.ui.DatePicker,
+            datetimerange: this.defaultAttrs.ui.DatePicker,
+            monthrange: this.defaultAttrs.ui.DatePicker,
+            radio: this.defaultAttrs.ui.RadioGroup,
+            checkbox: this.defaultAttrs.ui.CheckboxGroup,
+            switch: this.defaultAttrs.ui.Switch,
+            slider: this.defaultAttrs.ui.Slider,
+            rate: this.defaultAttrs.ui.Rate,
+            color: this.defaultAttrs.ui.ColorPicker
           }[form.type])
         }
       } else if (type === 'pagination') {
@@ -314,7 +294,7 @@ export default {
               ? this.defaultAttrs.component.pagination(this)
               : this.defaultAttrs.component.pagination
           ),
-          ...Utils.resetPropertys(this.pagination, ElPagination)
+          ...Utils.resetPropertys(this.pagination, this.defaultAttrs.ui.Pagination)
         }
       }
       return result

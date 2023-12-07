@@ -31,11 +31,12 @@ const attrs = {
   }
 }
 
-const get = ({ global, component }) => {
+const get = ({ ui, global, component }) => {
   return {
     data() {
       return {
         defaultAttrs: {
+          ui,
           global: {
             ...attrs.global,
             ...global
