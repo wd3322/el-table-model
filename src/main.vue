@@ -120,18 +120,6 @@ import { debounce } from 'debounce'
 import Utils from './utils.js'
 import ElTableModelColumn from './components/column.vue'
 
-for (const prop of ['maxlength', 'minlength', 'autocomplete', 'name', 'readonly', 'max', 'min', 'step', 'autofocus', 'form']) {
-  if (!ElInput.props[prop]) ElInput.props[prop] = {}
-  if (!ElAutocomplete.props[prop]) ElAutocomplete.props[prop] = {}
-  if (prop === 'name') {
-    if (!ElInputNumber.props[prop]) ElInputNumber.props[prop] = {}
-    if (!ElTimePicker.props[prop]) ElTimePicker.props[prop] = {}
-    if (!ElDatePicker.props[prop]) ElDatePicker.props[prop] = {}
-    if (!ElCheckboxGroup.props[prop]) ElCheckboxGroup.props[prop] = {}
-    if (!ElRadioGroup.props[prop]) ElRadioGroup.props[prop] = {}
-  }
-}
-
 export default {
   name: 'ElTableModel',
   components: {
@@ -210,6 +198,19 @@ export default {
       },
       immediate: false,
       deep: true
+    }
+  },
+  beforeCreate() {
+    for (const prop of ['maxlength', 'minlength', 'autocomplete', 'name', 'readonly', 'max', 'min', 'step', 'autofocus', 'form']) {
+      if (!ElInput.props[prop]) ElInput.props[prop] = {}
+      if (!ElAutocomplete.props[prop]) ElAutocomplete.props[prop] = {}
+      if (prop === 'name') {
+        if (!ElInputNumber.props[prop]) ElInputNumber.props[prop] = {}
+        if (!ElTimePicker.props[prop]) ElTimePicker.props[prop] = {}
+        if (!ElDatePicker.props[prop]) ElDatePicker.props[prop] = {}
+        if (!ElCheckboxGroup.props[prop]) ElCheckboxGroup.props[prop] = {}
+        if (!ElRadioGroup.props[prop]) ElRadioGroup.props[prop] = {}
+      }
     }
   },
   created() {
