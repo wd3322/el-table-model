@@ -183,17 +183,6 @@ export default {
     }
   },
   created() {
-    for (const prop of ['maxlength', 'minlength', 'autocomplete', 'name', 'readonly', 'max', 'min', 'step', 'autofocus', 'form']) {
-      this.defaultAttrs.ui.Input.props[prop] = this.defaultAttrs.ui.Input.props[prop] || {}
-      this.defaultAttrs.ui.Autocomplete.props[prop] = this.defaultAttrs.ui.Autocomplete.props[prop] || {}
-      if (prop === 'name') {
-        this.defaultAttrs.ui.InputNumber.props[prop] = this.defaultAttrs.ui.InputNumber.props[prop] || {}
-        this.defaultAttrs.ui.TimePicker.props[prop] = this.defaultAttrs.ui.TimePicker.props[prop] || {}
-        this.defaultAttrs.ui.DatePicker.props[prop] = this.defaultAttrs.ui.DatePicker.props[prop] || {}
-        this.defaultAttrs.ui.CheckboxGroup.props[prop] = this.defaultAttrs.ui.CheckboxGroup.props[prop] || {}
-        this.defaultAttrs.ui.RadioGroup.props[prop] = this.defaultAttrs.ui.RadioGroup.props[prop] || {}
-      }
-    }
     const { immediate: queryImmediate } = this.queryApi
     if (queryImmediate === true) {
       this.loading = true
@@ -237,7 +226,7 @@ export default {
               ? this.defaultAttrs.component.table(this)
               : this.defaultAttrs.component.table
           ),
-          ...Utils.resetPropertys(this.$attrs, this.defaultAttrs.ui.Table)
+          ...this.getProps(this.$attrs, this.defaultAttrs.ui.Table)
         }
       } else if (type === 'table-column') {
         const { column } = options
@@ -248,14 +237,14 @@ export default {
               : this.defaultAttrs.component.tableColumn
           ),
           index: column.type === 'index' ? this.getIndex : null,
-          ...Utils.resetPropertys(column, this.defaultAttrs.ui.TableColumn)
+          ...this.getProps(column, this.defaultAttrs.ui.TableColumn)
         }
       } else if (type === 'editable-form') {
         const { column, form } = options
         result = {
           size: 'mini',
           placeholder: column.label || '',
-          ...Utils.resetPropertys(form, {
+          ...this.getProps(form, {
             input: this.defaultAttrs.ui.Input,
             text: this.defaultAttrs.ui.Input,
             number: this.defaultAttrs.ui.Input,
@@ -294,8 +283,35 @@ export default {
               ? this.defaultAttrs.component.pagination(this)
               : this.defaultAttrs.component.pagination
           ),
-          ...Utils.resetPropertys(this.pagination, this.defaultAttrs.ui.Pagination)
+          ...this.getProps(this.pagination, this.defaultAttrs.ui.Pagination)
         }
+      }
+      return result
+    },
+    getProps(item, component) {
+      let result = {}
+      if (component && component.props && typeof component.props === 'object') {
+        const props = Object.keys(component.props)
+        if (['ElInput', 'ElAutocomplete'].includes(component.name)) {
+          props.push(...['maxlength', 'minlength', 'autocomplete', 'name', 'readonly', 'max', 'min', 'step', 'autofocus', 'form'])
+        }
+        if (['ElInputNumber', 'ElTimePicker', 'ElDatePicker', 'ElCheckboxGroup', 'ElRadioGroup'].includes(component.name)) {
+          props.push('name')
+        }
+        if (component.mixins && Array.isArray(component.mixins)) {
+          for (const mixin of component.mixins) {
+            if (mixin && mixin.props && typeof mixin.props === 'object') {
+              props.push(...Object.keys(mixin.props))
+            }
+          }
+        }
+        for (const prop in item) {
+          if (props.includes(Utils.convertHumpStr(prop))) {
+            result[prop] = item[prop]
+          }
+        }
+      } else {
+        result = { ...item }
       }
       return result
     },
