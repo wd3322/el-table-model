@@ -9,11 +9,12 @@
     "src"
   ],
   "keywords": [
+    "el table",
+    "el-table-model",
+    "table-model",
     "vue",
     "element",
-    "table",
-    "table-model",
-    "el-table-model"
+    "table"
   ],
   "homepage": "http://wd3322.gitee.io/el-model",
   "repository": {
