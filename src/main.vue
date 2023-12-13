@@ -306,7 +306,7 @@ export default {
           }
         }
         for (const prop in item) {
-          if (props.includes(Utils.convertHumpStr(prop))) {
+          if (props.includes(Utils.convertHumpStr(prop) || prop.split('-')[0] === 'data')) {
             result[prop] = item[prop]
           }
         }
