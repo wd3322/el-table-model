@@ -87,6 +87,8 @@
       <el-pagination
         v-bind="getAttrs('pagination')"
         v-on="pagination.events"
+        @size-change="pagination.pageSize = $event"
+        @current-change="pagination.currentPage = $event"
       />
     </div>
 
