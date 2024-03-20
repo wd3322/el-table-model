@@ -56,7 +56,6 @@
       <slot
         v-else-if="column.type === 'slot'"
         :name="column.defaultSlot || column.prop"
-        :item="scope.row"
         :row="scope.row"
         :column="scope.column"
         :index="scope.$index"

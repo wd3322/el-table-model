@@ -1,5 +1,5 @@
 <template>
-  <div class="table-model-wrap" v-loading="loading">
+  <div class="table-model-wrap">
 
     <!-- table component -->
     <div class="table-model-content">
@@ -81,16 +81,12 @@
 
     <!-- pagination component -->
     <div
-      v-if="hasData && queryApi.page"
+      v-if="pagination && pagination.total"
       class="table-model-pagination"
     >
       <el-pagination
-        :page-size="pageSize"
-        :current-page="currentPage"
-        :total="total"
         v-bind="getAttrs('pagination')"
-        @size-change="onTurnPage('size', $event)"
-        @current-change="onTurnPage('current', $event)"
+        v-on="pagination.events"
       />
     </div>
 
@@ -98,7 +94,6 @@
 </template>
 
 <script>
-import { debounce } from 'debounce'
 import Utils from './utils.js'
 import ElTableModelColumn from './components/column.vue'
 
@@ -108,10 +103,10 @@ export default {
     ElTableModelColumn
   },
   props: {
-    queryApi: {
-      type: Object,
+    data: {
+      type: Array,
       required: true,
-      default: () => ({})
+      default: () => [{}]
     },
     columns: {
       type: Array,
@@ -123,11 +118,6 @@ export default {
       required: false,
       default: () => ({})
     },
-    activatedRefresh: {
-      type: [Boolean, undefined],
-      required: false,
-      default: undefined
-    },
     rowDragSort: {
       type: [Boolean, Object, Function],
       required: false,
@@ -136,14 +126,8 @@ export default {
   },
   data() {
     return {
-      loading: false,
-      data: [],
-      pageSize: 0,
-      currentPage: 1,
-      total: 0,
       validateProp: {},
-      editableKey: '',
-      getDataFunc: debounce(this.getData, 200)
+      editableKey: ''
     }
   },
   computed: {
@@ -151,54 +135,9 @@ export default {
       return {
         list: this.data
       }
-    },
-    apiChange() {
-      return {
-        ...this.queryApi,
-        currentPage: this.currentPage,
-        pageSize: this.pageSize
-      }
-    },
-    hasData() {
-      return this.data.length > 0
-    }
-  },
-  watch: {
-    apiChange: {
-      handler(nVal, oVal) {
-        const { page: queryPage } = this.queryApi
-        if (
-          nVal.currentPage > 1 &&
-          nVal.currentPage === oVal.currentPage &&
-          queryPage === true
-        ) {
-          this.currentPage = 1
-        } else {
-          this.loading = true
-          this.getDataFunc()
-        }
-      },
-      immediate: false,
-      deep: true
     }
   },
   created() {
-    const { immediate: queryImmediate } = this.queryApi
-    if (queryImmediate === true) {
-      this.loading = true
-      this.getDataFunc()
-    }
-  },
-  activated() {
-    const { immediate: queryImmediate } = this.queryApi
-    if (
-      queryImmediate === true &&
-      this.activatedRefresh !== false &&
-      (this.activatedRefresh || this.defaultAttrs.global.activatedRefresh)
-    ) {
-      this.loading = true
-      this.getDataFunc()
-    }
   },
   mounted() {
     if (this.rowDragSort === true) {
@@ -213,9 +152,9 @@ export default {
   },
   methods: {
     getIndex(index) {
-      return !this.loading
-        ? ++index + (this.pageSize || this.getAttrs('pagination').pageSizes[0]) * (this.currentPage - 1)
-        : ''
+      return this.pagination.pageSize && this.pagination.currentPage
+        ? ++index + (this.pagination.pageSize || this.getAttrs('pagination').pageSizes[0]) * (this.pagination.currentPage - 1)
+        : ++index
     },
     getAttrs(type, options) {
       let result = {}
@@ -316,54 +255,8 @@ export default {
       }
       return result
     },
-    async getData() {
-      this.loading = true
-      const {
-        page: queryPage = false,
-        params: queryParams = {},
-        method: queryMethod
-      } = this.queryApi
-      if (
-        Utils.getPrototype(queryPage) !== 'boolean' ||
-        Utils.getPrototype(queryParams) !== 'object' ||
-        Utils.getPrototype(queryMethod).indexOf('function') === -1
-      ) {
-        return
-      }
-      if (queryPage) {
-        queryParams[this.defaultAttrs.global.propName.currentPage] = this.currentPage
-        queryParams[this.defaultAttrs.global.propName.pageSize] = this.pageSize || this.getAttrs('pagination').pageSizes[0]
-      }
-      const queryCallback = (result) => {
-        if (Utils.getPrototype(result) !== 'object') {
-          result = { data: [], total: 0 }
-        }
-        if (Utils.getPrototype(result.data) !== 'array') {
-          result.data = []
-        }
-        if (Utils.getPrototype(result.total) !== 'number') {
-          result.total = 0
-        }
-        if (result.data.length === 0 && this.currentPage > 1) {
-          --this.currentPage
-        } else {
-          this.data = result.data
-          this.total = result.total
-        }
-        this.loading = false
-        this.editableKey = `editable.key.${+new Date()}`
-      }
-      queryMethod(queryParams, queryCallback)
-    },
     onValidateForm(prop, valid) {
       this.$set(this.validateProp, prop, valid)
-    },
-    onTurnPage(type, val) {
-      if (type === 'size') {
-        this.pageSize = val
-      } else if (type === 'current') {
-        this.currentPage = val
-      }
     },
     onSortable(options = {}) {
       document.body.ondrop = e => {

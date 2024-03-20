@@ -13,21 +13,6 @@ export default {
       if (Utils.getPrototype(attrs.ui) !== 'object') {
         throw new Error(`${errorHeader} 'ui' is not a object`)
       }
-      if (Utils.getPrototype(attrs.global) !== 'object') {
-        throw new Error(`${errorHeader} 'global' is not a object`)
-      }
-      if (Utils.getPrototype(attrs.global.activatedRefresh) !== 'boolean') {
-        throw new Error(`${errorHeader} 'global.activatedRefresh' is not a boolean`)
-      }
-      if (Utils.getPrototype(attrs.global.propName) !== 'object') {
-        throw new Error(`${errorHeader} 'global.propName' is not a object`)
-      }
-      if (Utils.getPrototype(attrs.global.propName.currentPage) !== 'string') {
-        throw new Error(`${errorHeader} 'global.propName.currentPage' is not a string`)
-      }
-      if (Utils.getPrototype(attrs.global.propName.pageSize) !== 'string') {
-        throw new Error(`${errorHeader} 'global.propName.pageSize' is not a string`)
-      }
       if (Utils.getPrototype(attrs.component) !== 'object') {
         throw new Error(`${errorHeader} 'component' is not a object`)
       }

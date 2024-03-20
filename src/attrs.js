@@ -1,12 +1,5 @@
 
 const attrs = {
-  global: {
-    activatedRefresh: false,
-    propName: {
-      currentPage: 'currentPage',
-      pageSize: 'pageSize'
-    }
-  },
   component: {
     table(ctx) {
       return {
@@ -31,16 +24,12 @@ const attrs = {
   }
 }
 
-const get = ({ ui, global, component }) => {
+const get = ({ ui, component }) => {
   return {
     data() {
       return {
         defaultAttrs: {
           ui,
-          global: {
-            ...attrs.global,
-            ...global
-          },
           component: {
             ...attrs.component,
             ...component
